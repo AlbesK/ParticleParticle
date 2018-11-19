@@ -32,14 +32,16 @@ for(int i=0; i<particles; i++){
         for(int n=0; n<dimensions; n++){
 
             *(*F+n) += (*(Mass+i) * *(Mass+j))/(sqr*sqr*sqr)*difference[n];   
-            printf("F[%i][%i] = %f\n", i, n, *(*F+n) );
+            
         }
 
         //F[i] += mass[j] * (1.0/(sqr*sqr*sqr))*r; //Calculating Forces using the trick F = 1/r^3 * r, where r = r0 * k where k is direction
         //F[j] += -F[i];
 
         }
-	
+	for(int n=0; n<dimensions; n++){
+            printf("F[%i][%i] = %f\n", i, n, *(*F+n) );
+        }
 }
 }
 
