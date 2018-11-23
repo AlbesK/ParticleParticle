@@ -12,11 +12,6 @@ int main()
   int readin;
   clock_t start, end;
 
-  double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //Dynamically allocate memory for Array-
-  double *Mass = malloc(sizeof(double) * N_PARTICLES); //- for memory
-  double *V = malloc(sizeof(double) * N_PARTICLES); //- for Potentials
-  double (*F)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //- for Forces
-
   printf("How many particles?\n");
   readin = scanf("%i", &N_PARTICLES);
   if (readin != 1) {
@@ -29,10 +24,20 @@ int main()
     printf("Insufficent number of particles %i\n", N_PARTICLES);
     exit(-1);
   }
+  
+  double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //Dynamically allocate memory for Array-
+  double *Mass = malloc(sizeof(double) * N_PARTICLES); //- for memory
+  printf("Mass is allocated\n");
+  double *V = malloc(sizeof(double) * N_PARTICLES); //- for Potentials
+  printf("Potential is allocated, perhaps wrongly in the same position of pointer?\n");
+  double (*F)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //- for Forces
+
+  
   printf("-----\n");
   
 
-  initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass);
+  initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass); //Initialise the Array A of dimensions per particle and their respective Masses- 
+  //-( will be charges in the future)
   printf("-----\n");
    
   start = clock(); //start timer
@@ -42,15 +47,14 @@ int main()
   end = clock(); //end timer
     
   double duration = (double)(end-start)/CLOCKS_PER_SEC;
-  printf("Time elapsed is: %f (s)\n", duration);
+  printf("Time elapsed is: %f (s)\n", duration); //To see the duration on the calculation model only
     
   //#include "printer.c" //Print file.c
     
   free(A); //Free memory
   free(Mass);
-  printf("Released the memory succesfuly\n");
-  //free(V);
-  //free(F);
-    
+  free(V);  
+  free(F);
+  printf("Released the memory succesfully");  
   return 0;
 }
