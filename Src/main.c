@@ -11,7 +11,7 @@ int main()
   int N_DIMENSIONS = 3;
   int readin;
   clock_t start, end;
-
+  char term;
   printf("How many particles?\n");
   if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
     printf("Failure: Not an integer. Try again\n");
