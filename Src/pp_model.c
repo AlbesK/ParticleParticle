@@ -29,12 +29,12 @@ for(int i = 0; i < particles; i++){
 
         double sqr = sqrt(r); //Defining a value for the square root for efficiency and calculating the total distance r in sqr
 
-        V[i] += Mass[j] * (1.0/sqr);  //Calculating Potentials using pointers
-        V[j] += Mass[i] * (1.0/sqr);
+        V[i] += Charge[j] * (1.0/sqr);  //Calculating Potentials using pointers
+        V[j] += Charge[i] * (1.0/sqr);
 
         for(int n = 0; n < dimensions; n++){
 
-            F[i][n] += (Mass[i] * Mass[j])/(sqr*sqr*sqr)*difference[n];
+            F[i][n] += (Charge[i] * Charge[j])/(sqr*sqr*sqr)*difference[n];
             F[j][n] -= F[i][n];  //F[j] += -F[i];
             
         }
