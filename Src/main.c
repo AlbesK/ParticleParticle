@@ -55,6 +55,6 @@ int main()
   free(Mass);
   free(V);  
   free(F);
-  printf("Released the memory succesfully");  
+  printf("Released the memory succesfully\n");  
   return 0;
 }
