@@ -13,11 +13,10 @@ int main()
   clock_t start, end;
 
   printf("How many particles?\n");
-  readin = scanf("%i", &N_PARTICLES);
-  if (readin != 1) {
-    printf("Particle number read failed\n");
+  if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
+    printf("Failure: Not an integer. Try again\n");
     exit(-1);
-  }
+  } 
 
   printf("Calculating\n");
   if (N_PARTICLES < 2) {
