@@ -27,9 +27,8 @@ int main()
   
   double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //Dynamically allocate memory for Array-
   double *Mass = malloc(sizeof(double) * N_PARTICLES); //- for memory
-  printf("Mass is allocated\n");
+  double *Charge = malloc(sizeof(double) * N_PARTICLES);
   double *V = malloc(sizeof(double) * N_PARTICLES); //- for Potentials
-  printf("Potential is allocated, perhaps wrongly in the same position of pointer?\n");
   double (*F)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //- for Forces
 
   
@@ -55,6 +54,7 @@ int main()
   free(Mass);
   free(V);  
   free(F);
+  free(Charge);
   printf("Released the memory succesfully\n");  
   return 0;
 }
