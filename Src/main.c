@@ -9,7 +9,6 @@ int main()
   ///Number of Particles & Number of Dimensions the particles reside in
   int N_PARTICLES;
   int N_DIMENSIONS = 3;
-  int readin;
   clock_t start, end;
   char term;
   printf("How many particles?\n");
@@ -34,13 +33,13 @@ int main()
   printf("-----\n");
   
 
-  initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass); //Initialise the Array A of dimensions per particle and their respective Masses- 
+  initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass, Charge); //Initialise the Array A of dimensions per particle and their respective Masses- 
   //-( will be charges in the future)
   printf("-----\n");
    
   start = clock(); //start timer
     
-  ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass); //Model
+  ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
     
   end = clock(); //end timer
     
