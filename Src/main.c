@@ -17,6 +17,15 @@ int main()
     exit(-1);
   } 
 
+  //Seed input to check values with trial of OpenMP
+  int seed;
+
+  printf("Seed value?\n");
+  if (scanf("%d%c", &seed, &term) != 2 || term != '\n') {
+    printf("Failure: Not an integer. Try again\n");
+    exit(-1);
+  } 
+
   printf("Calculating\n");
   if (N_PARTICLES < 2) {
     printf("Insufficent number of particles %i\n", N_PARTICLES);
@@ -33,7 +42,7 @@ int main()
   printf("-----\n");
   
 
-  initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass, Charge); //Initialise the Array A of dimensions per particle and their respective Masses- 
+  initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
   //-( will be charges in the future)
   printf("-----\n");
    
