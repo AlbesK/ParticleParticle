@@ -4,7 +4,7 @@
 #include <math.h>
 #include "Functions.h"
 
-void ppmodel(int particles, int dimensions, double* V, double (*F)[dimensions], double (*A)[dimensions], double* Mass){
+void ppmodel(int particles, int dimensions, double* V, double (*F)[dimensions], double (*A)[dimensions], double* Mass, double* Charge){
 
 double Total_Force = 0.0;
 double Total_Energy = 0.0;
@@ -54,7 +54,7 @@ for(int i = 0; i < particles; i++){
 }
 
 printf("The total force on this system is: %f\n", Total_Force);
-printf("The total energy on this system is: %f\n", Total_Energy);
+printf("The total energy of this system is: %f\n", Total_Energy);
 
 
 
