@@ -9,7 +9,8 @@ void ppmodel(int particles, int dimensions, double* V, double (*F)[dimensions], 
 double Total_Force[dimensions];
 double Total_Energy = 0.0;
 
-#pragma omp for private(i)
+#pragma omp for 
+
 for(int i = 0; i < particles; i++){
     for(int j = i+1; j < particles; j++){
         
