@@ -3,9 +3,8 @@
 #include <ctime>
 #include <cmath>
 #include <vector>
-#include <algorithm>
-#include <iterator>
 //#include "Functions.h"
+
 //ios::sync_with_stdio(false);
 
 int main()
@@ -71,6 +70,8 @@ int main()
     } 
   }
 
+  
+
   for (int i = 0; i < N_PARTICLES; i++){
     
     (*Mass)[i] = (5 * ((double) rand() / (double) RAND_MAX ));
@@ -80,15 +81,6 @@ int main()
     
 
   }
-  //Checking Purposes
-  std::vector<double> vec_pos = b1.getPosition();
-  std::cout << "Check" << std::endl;
-  std::cout << "Now sizes are: For Matrix:" << Matrix->size() << " Then for Mass:" << Mass->size() << " Finally for Charge:" 
-  << Charge->size() << std::endl;
-  std::cout << "Body default parameters are: " << vec_pos[0] << vec_pos[1] << vec_pos[2] << " Mass is: " << b1.getMass() << "Charge is: " << b1.getCharge() << std::endl;
-
-  
-
 
   //Free Memory
   delete Matrix; delete Mass; delete Charge;
