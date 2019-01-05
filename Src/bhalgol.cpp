@@ -40,16 +40,23 @@ int main(int argc, char const *argv[])
     int seed = 1; int N_PARTICLES = 10;
     srand(seed);
 
-    std::vector<Body> *p_label = new std::vector<Body>(N_PARTICLES);
+    std::vector<Body> p_label; //Vector of Bodies
     
-    for(int i=0; i<N_PARTICLES; i++){
+    for(int i=0; i<N_PARTICLES; i++){ //Initialise values
         x = 20 *  (double) rand() / (double) RAND_MAX -10 ;
         y = 20 *  (double) rand() / (double) RAND_MAX -10 ;
         mass = 5 * ( (double) rand() / (double) RAND_MAX );
-        charge = 20 *  (double) rand() / (double) RAND_MAX -10 s;
-        (*p_label)[0]->x = x;
+        charge = 20 *  (double) rand() / (double) RAND_MAX -10 ;
+        Body b(x, y, mass, charge);
+        p_label.push_back(b);
+    }
+
+    for(int i=0; i<N_PARTICLES; i++){ //Print Values
+        printf("Body %i has x = %f, y = %f, mass = %f, charge = %f \n", i, 
+        p_label[i].getX(), p_label[i].getY(), p_label[i].getMass(),
+        p_label[i].getCharge());
     }
     
-    delete [] p_label;
+    //delete [] p_label;
     return 0;
 }
