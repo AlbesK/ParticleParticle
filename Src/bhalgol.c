@@ -60,7 +60,7 @@ int main(){
     int ipoint[Depth*Depth];
     
     int node[Depth*Depth];    
-    int level[Depth]; // ln(Depth) Depented particle depth, after we divide recursively space by half each time
+    int level[2*Depth]; // ln(Depth) Depented particle depth, after we divide recursively space by half each time
     level[0] = 0;
     int first_dau[Depth*Depth]; //Trying Depth^2 for now as a guess
     int n_dau[N_PARTICLES]; 
@@ -82,35 +82,58 @@ int main(){
 
         return max;
     }
+    
+    //Root
 
+    /*int quadrant_a =0;
+    int quadrant_b =0;
+    int quadrant_c =0;
+    int quadrant_d =0;*/
+    
+    int quadrant_[4];  quadrant_[0] = 0; quadrant_[1] = 0; quadrant_[2] = 0; quadrant_[3] = 0;
 
+    leve[1] //== # node
+    
+
+    
     //void SUBDIVIDE (cut_node, pointer){
         
-        int iparent = cut_node;
-        int ipoi = pointer;
-        int ilev = level[iparent] + 1;
-        first_dau[iparent] = ipoi;
+    
 
+    
         //count particles in subcells
-        n_dau[iparent] = 4;//# new daughter nodes 
+         for(int i=0; i<N_PARTICLES; i++){
+            if(A[i][0] >= 0 && A[i][1] >= 0){quadrant_[0]++}  //{quadrant_a++;} //depends on NODE
+            if(A[i][0] >= 0 && A[i][1] <= 0){quadrant_[1]++}  //{quadrant_b++;}
+            if(A[i][0] <= 0 && A[i][1] <= 0){quadrant_[2]++}  //{quadrant_c++;}
+            if(A[i][0] <= 0 && A[i][1] >= 0){quadrant_[3]++}  //{quadrant_d++;}
+            
+        }
+        printf("Quadrant A: %i, Quadrant B: %i, Quadrant C: %i, Quadrant D: %i \n", quadrant_a, quadrant_b, quadrant_c, quadrant_d);
+        
+        for(int i=0; i<4; i++){
+            if(quadrant_[i]>=2){node==twig}
+            if(quadrant_[i]==1){node == leaf}
+            if(quadrant_[i]==0){node == ingnore}
+        }
 
-        //for(int i=0; i<cut_node; i++){ //For each-twig-node do:
+        for(int i=0; i<n_dau[iparent]; i++){ //For each-twig-node do:
             itwig = itwig-1;
-            node[ipoi] = itwig;
-            parent[ipoi] = iparent;
-            level[itwig] = ilev;
+            node = itwig;
+            parent = iparent;
+            level = ilev;
             ipoi = ipoi + 1;
 
             printf("itwig = %i, node[%i] = %i, parent[%i] = %i, level[%i] = %i \n", itwig, ipoi, node[ipoi], parent[ipoi], iparent, itwig, level[itwig]);
 
-        //}
+        }
 
         for(int i=0; i<Depth; i++){ //for each leaf-node
             ileaf = ileaf + 1;
-            node[ipoi] = ileaf;
-            parent[ipoi] = iparent;
+            node = ileaf;
+            parent = iparent;
             //plabel[ileaf] = particle # ( number then with # symbol)
-            level[ileaf] = ilev;
+            level = ilev;
             // Store positions and moments of particle
             ipoi = ipoi + 1;
         }
@@ -133,14 +156,14 @@ int main(){
             //*repeat* for each mode on same level:
                
             pointer = ipoint[itwig]; //meaning that ipoi is ipoint?
-            n_buds = n_dau[pointer]; //meaning n_buddies(?) and n_dau from above?
+            n_buds = n_dau[pointer]; //meaning n_buddies(?) and n_dau from above? Assuming so
             point1 = first_dau[pointer];
             //zero moment sums:
             M[itwig] = 0;
             r_com[itwig] = 0;
             int in = 0;
             do {
-                point_dau = point1 +i -1;
+                point_dau = point1 +in -1;
                 inode = node[point_dau];
                 //sum mass and centre of mass:
                 M[itwig] = M[itwig] + M[inode];
