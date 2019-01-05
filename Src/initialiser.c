@@ -16,13 +16,13 @@ srand(seed); //Seed time for random value generation
 
 for (int i=0; i < particles; i++){
   for(int j=0; j < dimensions; j++){
-    A[i][j] = 20 * ( (double) rand() / (double) RAND_MAX -10 );
+    A[i][j] = 20 *  (double) rand() / (double) RAND_MAX -10 ;
   }
 }
 
 for (int i = 0; i < particles; i++){
     Mass[i] = 5 * ((double) rand() / (double) RAND_MAX );
-    Charge[i] = 10 * ((double) rand() / (double) RAND_MAX ) - 5;
+    Charge[i] = 10 * (double) rand() / (double) RAND_MAX  - 5;
 }
 
 }
