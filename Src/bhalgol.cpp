@@ -7,11 +7,8 @@
 class Body { //Class for a particle containing:
     private:
     
-    double x; //position x, y for 2D case for now
-    double y;
-    double mass; 
-    double charge; 
-
+    double x; double y; //position x, y for 2D case for now
+    double mass; double charge; 
 
     public:
 
@@ -31,13 +28,19 @@ class Body { //Class for a particle containing:
 
 };
 
+class QuadTree {
+    
+};
+
 
 
 int main(int argc, char const *argv[])
 {
     /* code */
     int x = 0; int y = 0; int mass = 1; int charge = 1; 
-    int seed = 1; int N_PARTICLES = 10;
+    int seed = 1; int N_PARTICLES = 10; int N_DIMENSIONS = 2;
+    double Total_Force[N_DIMENSIONS];
+    double Total_Energy = 0.0;
     srand(seed);
 
     std::vector<Body> p_label; //Vector of Bodies
@@ -56,7 +59,12 @@ int main(int argc, char const *argv[])
         p_label[i].getX(), p_label[i].getY(), p_label[i].getMass(),
         p_label[i].getCharge());
     }
+
+
+
+
+
     
-    //delete [] p_label;
+    //delete [] p_label; //Gonna use this later for now lets stay on the stack
     return 0;
 }
