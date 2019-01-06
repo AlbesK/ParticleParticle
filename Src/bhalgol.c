@@ -36,7 +36,7 @@ struct node* newNode(int data, double s, double x, double y)
   node->se = NULL;
   node->sw = NULL;
 
-  //node->right = NULL; 
+  
   return(node); 
 } 
 
@@ -147,6 +147,8 @@ int main() {
             printf("NW is a leaf\n");
             }
         } 
+
+    printf("size of internal node is: %f\n", ne->s);
     
     
 
