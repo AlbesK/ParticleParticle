@@ -28,9 +28,9 @@ class Body { //Class for a particle containing:
 
 };
 
-class QuadTree {
+/*class QuadTree {
     
-};
+};*/
 
 
 
