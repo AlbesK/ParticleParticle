@@ -27,7 +27,7 @@ struct node* newNode(int data, double s, double x, double y)
   
   // Assign data to this node 
   node->data = data;
-  node->s = node->s/2; //Size of square halfed each time is called with same size for each but new coordinates for their centres
+  node->s = s/2; //Size of square halfed each time is called with same size for each but new coordinates for their centres
   node->center[0] = x; node->center[1] = y;
   
   // Initialize left and right children as NULL 
@@ -91,7 +91,7 @@ int main() {
 
 
     struct node *root = newNode(0, 40.0, 0, 0);   
-    
+    printf("Root square size is: %f\n", root->s);
 
     //Count Particles in Cell/Node:
     int quadrant_[4] = {0,0,0,0};
