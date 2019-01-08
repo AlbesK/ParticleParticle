@@ -139,6 +139,7 @@ int main() {
     printf("NE: %i, SE: %i, SW: %i, NW: %i \n", quadrant_[0], quadrant_[1], quadrant_[2], quadrant_[3]);
 
     //Is cell a twig? (>2 Particles) in this case it is:
+    //Subdivide:
     if(quadrant_[0]>=2){
         root->ne = newNode(-1, root->s/2, root->center[0]+root->s/2, root->center[1]+root->s/2 );
         printf("NE is a twig\n");
