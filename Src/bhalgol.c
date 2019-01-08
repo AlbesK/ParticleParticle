@@ -30,15 +30,47 @@ struct node* newNode(int data, double s, double x, double y)
   node->s = s/2; //Size of square halfed each time is called with same size for each but new coordinates for their centres
   node->center[0] = x; node->center[1] = y;
   
-  // Initialize left and right children as NULL 
+  // Initialize with NULL 
   node->nw = NULL; 
   node->ne = NULL;
   node->se = NULL;
   node->sw = NULL;
 
-  //node->right = NULL; 
+  
   return(node); 
 } 
+
+void display(struct node* nd) //Display node value
+{
+    if(nd != NULL)
+        printf("%d \n",nd->data);
+}
+
+void display_tree(struct node* nd) //Display full tree
+{
+    if (nd == NULL)
+        return;
+    /* display node data */
+    printf("%d",nd->data);
+
+    if(nd->ne != NULL)
+        printf("(NE:%d)",nd->ne->data);
+    if(nd->se != NULL)
+        printf("(SE:%d)",nd->se->data);
+    if(nd->sw != NULL)
+        printf("(SW:%d)",nd->sw->data);
+    if(nd->nw != NULL)
+        printf("(NW:%d)",nd->nw->data);
+    
+    printf("\n");
+ 
+    display_tree(nd->ne);
+    display_tree(nd->se);
+    display_tree(nd->sw);
+    display_tree(nd->nw);
+
+
+}
 
 //Deallocate memory for all nodes:
 void dispose(struct node* root)
@@ -60,9 +92,9 @@ void dispose(struct node* root)
   
 int main() {
 
-    int N_DIMENSIONS = 2 ;
+    int N_DIMENSIONS = 2 ; //2D case
     int N_PARTICLES = 8;
-    char c;
+    
     //Physical_Properties_Array[Particles Position][Masses][Charges][..etc..] Perhaps better for all of these pointers.  
     double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
     double *V = malloc(sizeof(double) * N_PARTICLES );
@@ -107,6 +139,7 @@ int main() {
     printf("NE: %i, SE: %i, SW: %i, NW: %i \n", quadrant_[0], quadrant_[1], quadrant_[2], quadrant_[3]);
 
     //Is cell a twig? (>2 Particles) in this case it is:
+    //Subdivide:
     if(quadrant_[0]>=2){
         root->ne = newNode(-1, root->s/2, root->center[0]+root->s/2, root->center[1]+root->s/2 );
         printf("NE is a twig\n");
@@ -147,11 +180,14 @@ int main() {
             printf("NW is a leaf\n");
             }
         } 
+
+    printf("size of internal node is: %f\n", root->ne->s);
+    display(root);
     
-    
+    display_tree(root);
 
 
-    printf("Node is %i\n", root->data);
+    
 
     /* remove the whole tree */
     dispose(root);
