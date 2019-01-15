@@ -6,10 +6,11 @@
 #include <time.h>
 
 
+
 struct node  //Node Structure
 { 
     int data; //key value
-    int level; //How deep is it, starting from -1 (Root makes it )
+    //How deep is it, starting from -1 (Root makes it )
     double s; //Original size corresponding to this node, and for s/d calculation
     double center[2]; //Center of this quad of this node
     
@@ -27,32 +28,34 @@ struct node* newNode(int data, double s, double x, double y)
   
   // Assign data to this node 
   node->data = data;
-  node->s = s/2; //Size of square halfed each time is called with same size for each but new coordinates for their centres
+  node->s = s; //Size of square halfed each time is called with same size for each but new coordinates for their centres
   node->center[0] = x; node->center[1] = y;
   
-  // Initialize with NULL 
-  node->nw = NULL; 
-  node->ne = NULL;
+  // Initialize all children as NULL 
+  node->ne = NULL; 
   node->se = NULL;
   node->sw = NULL;
+  node->nw = NULL;
 
-  
+
   return(node); 
 } 
+	
 
-void display(struct node* nd) //Display node value
-{
-    if(nd != NULL)
-        printf("%d \n",nd->data);
-}
 
-void display_tree(struct node* nd) //Display full tree
+
+
+
+
+/*
+    Recursively display tree or subtree
+*/
+void display_tree(struct node* nd)
 {
     if (nd == NULL)
         return;
     /* display node data */
-    printf("%d",nd->data);
-
+    printf("Node %d [%f, %f] ",nd->data, nd->center[0], nd->center[1]);
     if(nd->ne != NULL)
         printf("(NE:%d)",nd->ne->data);
     if(nd->se != NULL)
@@ -61,46 +64,122 @@ void display_tree(struct node* nd) //Display full tree
         printf("(SW:%d)",nd->sw->data);
     if(nd->nw != NULL)
         printf("(NW:%d)",nd->nw->data);
-    
     printf("\n");
  
     display_tree(nd->ne);
     display_tree(nd->se);
     display_tree(nd->sw);
     display_tree(nd->nw);
-
-
 }
 
-//Deallocate memory for all nodes:
+//Deallocate memory for all nodes:  
 void dispose(struct node* root)
 {
     if(root != NULL)
     {
-        dispose(root->nw);
         dispose(root->ne);
         dispose(root->se);
         dispose(root->sw);
+        dispose(root->nw);
 
-        //dispose(root->sq);
+        
         free(root);
     }
 }
 
 
+void count(struct node* nd, double (*A)[2], int N_PARTICLES, int *quadrant_){
+    
+    printf("Count call\n");
+
+    quadrant_[0] = 0; quadrant_[1] = 0; quadrant_[2] = 0; quadrant_[3] = 0;
+    for(int i=0; i<N_PARTICLES; i++){
+        if(A[i][0] >= nd->center[0] && A[i][1] >= nd->center[1]){quadrant_[0]++;}  //{quadrant_a++;} //depends on NODE
+        if(A[i][0] >= nd->center[0] && A[i][1] <= nd->center[1]){quadrant_[1]++;}  //{quadrant_b++;}
+        if(A[i][0] <= nd->center[0] && A[i][1] <= nd->center[1]){quadrant_[2]++;}  //{quadrant_c++;}
+        if(A[i][0] <= nd->center[0] && A[i][1] >= nd->center[1]){quadrant_[3]++;}  //{quadrant_d++;}
+        
+    }
+
+    
+}
+
+void subdivide(struct node* nd, double (*A)[2], int *quadrant_, int N_PARTICLES){
+    
+    
+    printf("Subdivide call\n");
+    count(nd, A, N_PARTICLES, quadrant_);
+    
+
+    if(quadrant_[0]>=2){
+        printf("Subdivide NE quadrant 0 \n");
+        nd->ne = newNode(nd->data-1, nd->s/2, nd->center[0]+nd->s/4, nd->center[1]+nd->s/4);
+        
+        subdivide(nd->ne, A, quadrant_, N_PARTICLES);
+    } 
+    else{
+
+        nd->ne = newNode(nd->data+1, nd->s/2, nd->center[0]+nd->s/4, nd->center[1]+nd->s/4);
+        //nd->ne->leaf = leaf + 1;
+        //printf("NE is a leaf with value %i\n", nd->ne->leaf);
+            //else keep it null; 
+    }
+
+    if(quadrant_[1]>=2){
+        printf("Subdivide SE quadrant 1\n");
+        nd->se = newNode(nd->data-1, nd->s/2, nd->center[0]+nd->s/4, nd->center[1]-nd->s/4);
+        //subdivide(nd->se, A, quadrant_, N_PARTICLES);
+    } 
+    else{
+                
+        nd->se = newNode(nd->data+1, nd->s/2, nd->center[0]+nd->s/4, nd->center[1]-nd->s/4);
+        //nd->ne->leaf = leaf + 1;
+        //printf("NE is a leaf with value %i\n", nd->ne->leaf);
+            //else keep it null; 
+    }
+    
+    if(quadrant_[2]>=2){
+        printf("Subdivide SW quadrant 2\n");
+        nd->sw = newNode(nd->data-1, nd->s/2, nd->center[0]-nd->s/4, nd->center[1]-nd->s/4);
+        //subdivide(nd->sw, A, quadrant_, N_PARTICLES);
+    } 
+    else{
+                
+        nd->sw = newNode(nd->data+1, nd->s/2, nd->center[0]-nd->s/4, nd->center[1]-nd->s/4);
+        //nd->ne->leaf = leaf + 1;
+        //printf("NE is a leaf with value %i\n", nd->ne->leaf);
+            //else keep it null; 
+    }
+
+    if(quadrant_[3]>=2){
+        printf("Subdivide NW quadrant 3\n");
+        nd->nw = newNode(nd->data-1, nd->s/2, nd->center[0]-nd->s/4, nd->center[1]+nd->s/4);
+        //subdivide(nd->nw, A, quadrant_, N_PARTICLES);
+    } 
+    else{
+
+        nd->nw = newNode(nd->data+1, nd->s/2, nd->center[0]-nd->s/4, nd->center[1]+nd->s/4);
+        //nd->ne->leaf = leaf + 1;
+        //printf("NE is a leaf with value %i\n", nd->ne->leaf);
+            //else keep it null; 
+    }
+}
+
   
   
 int main() {
 
-    int N_DIMENSIONS = 2 ; //2D case
+    int N_DIMENSIONS = 2;
     int N_PARTICLES = 8;
-    
+    char c;
     //Physical_Properties_Array[Particles Position][Masses][Charges][..etc..] Perhaps better for all of these pointers.  
     double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
     double *V = malloc(sizeof(double) * N_PARTICLES );
     double *Mass = malloc(sizeof(double) * N_PARTICLES);
     double *Charge = malloc(sizeof(double) * N_PARTICLES);
     double (*F)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
+
+    //Initialise values:
 
     for (int i=0; i < N_PARTICLES; i++){
         for(int j=0; j < N_DIMENSIONS; j++){
@@ -118,80 +197,23 @@ int main() {
 
     
     
-    /*create root*/ //Size of s=20 and pint of reference being (0,0) equiv. to (x_root, y_root)
-    //Original size corresponding to this node, and for s/d calculation
-
-
-    struct node *root = newNode(0, 40.0, 0, 0);   
+    /*create root*/ 
+    
+    struct node *root = newNode(0, 20.0, 0, 0); //Size of s=20 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     printf("Root square size is: %f\n", root->s);
 
     //Count Particles in Cell/Node:
-    int quadrant_[4] = {0,0,0,0};
-
-    for(int i=0; i<N_PARTICLES; i++){
-        if(A[i][0] >= root->center[0] && A[i][1] >= root->center[1]){quadrant_[0]++;}  //{quadrant_a++;} //depends on NODE
-        if(A[i][0] >= root->center[0] && A[i][1] <= root->center[1]){quadrant_[1]++;}  //{quadrant_b++;}
-        if(A[i][0] <= root->center[0] && A[i][1] <= root->center[1]){quadrant_[2]++;}  //{quadrant_c++;}
-        if(A[i][0] <= root->center[0] && A[i][1] >= root->center[1]){quadrant_[3]++;}  //{quadrant_d++;}
-        
-    }
-
-    printf("NE: %i, SE: %i, SW: %i, NW: %i \n", quadrant_[0], quadrant_[1], quadrant_[2], quadrant_[3]);
-
+    int *quadrant_ = malloc(sizeof(int)*4);
+    quadrant_[0] = 0; quadrant_[1] = 0; quadrant_[2] = 0; quadrant_[3] = 0;
+    
     //Is cell a twig? (>2 Particles) in this case it is:
-    //Subdivide:
-    if(quadrant_[0]>=2){
-        root->ne = newNode(-1, root->s/2, root->center[0]+root->s/2, root->center[1]+root->s/2 );
-        printf("NE is a twig\n");
-        } 
-        else{
-            if(quadrant_[0]!=0){
-            root->ne = newNode(1, root->s/2, root->center[0]+root->s/2, root->center[1]+root->s/2);
-            printf("NE is a leaf\n");
-            } //else keep it null; 
-        }
-    if(quadrant_[1]>=2){
-        root->se = newNode(-1, root->s/2, root->center[0]+root->s/2, root->center[1]-root->s/2);
-        printf("SE is a twig\n");
-        } 
-        else{
-            if(quadrant_[1]!=0){
-            root->se = newNode(1, root->s/2, root->center[0]+root->s/2, root->center[1]-root->s/2);
-            printf("SE is a leaf\n");
-            }
-        }
-    if(quadrant_[2]>=2){
-        root->sw = newNode(-1, root->s/2, root->center[0]-root->s/2, root->center[1]-root->s/2);
-        printf("SW is a twig\n");
-        } 
-        else{
-            if(quadrant_[2]!=0){
-            root->sw = newNode(1, root->s/2, root->center[0]-root->s/2, root->center[1]-root->s/2);
-            printf("SW is a leaf\n");
-            }
-        }
-    if(quadrant_[3]>=2){
-        root->nw = newNode(-1, root->s/2, root->center[0]-root->s/2, root->center[1]+root->s/2);
-        printf("NW is a twig\n");
-        } 
-        else{
-            if(quadrant_[0]!=0){
-            root->nw = newNode(1, root->s/2, root->center[0]-root->s/2, root->center[1]+root->s/2);
-            printf("NW is a leaf\n");
-            }
-        } 
-
-    printf("size of internal node is: %f\n", root->ne->s);
-    display(root);
-    
+    //count(root, A, N_PARTICLES, quadrant_);
+    subdivide(root, A, quadrant_, N_PARTICLES);
     display_tree(root);
-
-
-    
 
     /* remove the whole tree */
     dispose(root);
-
+    free(quadrant_);
     free(A); //Free memory
     free(Mass);
     free(V);  
@@ -199,5 +221,4 @@ int main() {
     free(Charge);
 
     return 0; 
-  
 }
