@@ -5,7 +5,13 @@
 #include <vector>
 
 //#include "Functions.h"
+ 
+    
 
+    
+  
+    
+  
 //ios::sync_with_stdio(false);
 
   //Object approach
@@ -52,71 +58,54 @@ class Body: public Point {
 int main()
 {
   // Particle Number and Dimensions
+  
+  clock_t start, end;
+  start = clock(); //start timer
 
   int N_PARTICLES = 4; int N_DIMENSIONS = 3; int seed=1; 
 
 
 
+
   
   //Pointers and their initialization
-  std::vector< std::vector<double> > *Matrix;
-  std::vector<double> *Mass;
-  std::vector<double> *Charge; 
   
   std::vector<Body> *Bodies;
   Bodies = new std::vector<Body>(N_PARTICLES);
 
-  Matrix = new std::vector< std::vector<double> >(N_PARTICLES, std::vector<double>(N_DIMENSIONS));
-  Mass = new std::vector<double>(N_PARTICLES);
-  Charge = new std::vector<double>(N_PARTICLES);
 
   srand(seed); //Seed time for random value generation 
 
   //Initialising the matrices
   double rx, ry, rz;
   double mass, charge;
-  Body b;
+  Body* b = new Body();
 
   for(int i=0; i<N_PARTICLES; i++){
-    
-     b.setX(10 * ( (double) rand() / (double) RAND_MAX ));
-     b.setY(10 * ( (double) rand() / (double) RAND_MAX ));
-     b.setZ(10 * ( (double) rand() / (double) RAND_MAX ));
+     
+     b->setX((10 * ((double) rand() / (double) RAND_MAX )));
+     b->setY((10 * ((double) rand() / (double) RAND_MAX )));
+     b->setZ((10 * ((double) rand() / (double) RAND_MAX )));
 
      mass = (5 * ((double) rand() / (double) RAND_MAX ));
      charge = (10 * ((double) rand() / (double) RAND_MAX )-5);
     
-     b = (mass, charge);
+     b->mass = mass; b->charge = charge;
 
-     (*Bodies)[i] = b; 
+     (*Bodies)[i] = *b; 
 
-     std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << " " << (*Bodies)[i].z <<std::endl;
+     std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << 
+     " " << (*Bodies)[i].z << std::endl;
+     std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
+     (*Bodies)[i].charge << std::endl;
   }
 
-  for (int i=0; i < N_PARTICLES; i++){
-    std::cout << "Matrix Position is: " ;
-    for(int j=0; j < N_DIMENSIONS; j++){
-
-      (*Matrix)[i][j] = (10 * ( (double) rand() / (double) RAND_MAX ));
-      std::cout << (*Matrix)[i][j] << " ";
-    
-    } 
-    std::cout << std::endl;
-  }
-
-  
-
-  for (int i = 0; i < N_PARTICLES; i++){
-    
-    (*Mass)[i] = (5 * ((double) rand() / (double) RAND_MAX ));
-    (*Charge)[i] = (10 * ((double) rand() / (double) RAND_MAX )-5);
-    std::cout << "Mass is " << i << (*Mass)[i] << std::endl;
-    std::cout << "Charge is " << i << (*Charge)[i] << std::endl;
-    
-
-  }
 
   //Free Memory
-  delete  Matrix; delete  Mass; delete  Charge; delete  Bodies;
+  delete  Bodies; delete b; 
+
+  end = clock(); //end timer
+  double duration = (double)(end-start)/CLOCKS_PER_SEC;
+  printf("Time elapsed is: %f (s)\n", duration);
 
 }
