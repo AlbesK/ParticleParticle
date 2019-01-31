@@ -46,9 +46,10 @@ class Body: public Point {
     
     this->mass = m;
     this->charge = c;
+    std::cout <<"Body constructed\n";
   }
 
-  ~Body(){}; //Destructor
+  ~Body(){std::cout <<"Body destructed\n";}; //Destructor
 
 
 };
@@ -64,9 +65,6 @@ int main()
 
   int N_PARTICLES = 4; int N_DIMENSIONS = 3; int seed=1; 
 
-
-
-
   
   //Pointers and their initialization
   
@@ -79,20 +77,18 @@ int main()
   //Initialising the matrices
   double rx, ry, rz;
   double mass, charge;
-  Body* b = new Body();
+  
 
   for(int i=0; i<N_PARTICLES; i++){
      
-     b->setX((10 * ((double) rand() / (double) RAND_MAX )));
-     b->setY((10 * ((double) rand() / (double) RAND_MAX )));
-     b->setZ((10 * ((double) rand() / (double) RAND_MAX )));
-
      mass = (5 * ((double) rand() / (double) RAND_MAX ));
      charge = (10 * ((double) rand() / (double) RAND_MAX )-5);
     
-     b->mass = mass; b->charge = charge;
+    (*Bodies)[i] = Body(mass, charge);
 
-     (*Bodies)[i] = *b; 
+     (*Bodies)[i].setX((10 * ((double) rand() / (double) RAND_MAX )));
+     (*Bodies)[i].setY((10 * ((double) rand() / (double) RAND_MAX )));
+     (*Bodies)[i].setZ((10 * ((double) rand() / (double) RAND_MAX )));
 
      std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << 
      " " << (*Bodies)[i].z << std::endl;
@@ -102,7 +98,8 @@ int main()
 
 
   //Free Memory
-  delete  Bodies; delete b; 
+  delete  Bodies; 
+  std::cout << "Pointers deleted succesfuly" << std::endl;
 
   end = clock(); //end timer
   double duration = (double)(end-start)/CLOCKS_PER_SEC;

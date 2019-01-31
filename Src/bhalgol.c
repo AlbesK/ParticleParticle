@@ -183,14 +183,14 @@ int main() {
 
     for (int i=0; i < N_PARTICLES; i++){
         for(int j=0; j < N_DIMENSIONS; j++){
-            A[i][j] = 20 * ( (double) rand() / (double) RAND_MAX ) - 10;
+            A[i][j] = 20 * ( (double) rand() / (double) RAND_MAX ) - 10; //-10, 10
             printf("Particle [%i] with [%f] \n", i, A[i][j]);
         }
     }
 
     for (int i = 0; i < N_PARTICLES; i++){
-        Mass[i] = 5 * ((double) rand() / (double) RAND_MAX );
-        Charge[i] = 10 * ((double) rand() / (double) RAND_MAX ) - 5;
+        Mass[i] = 5 * ((double) rand() / (double) RAND_MAX ); //1,5
+        Charge[i] = 10 * ((double) rand() / (double) RAND_MAX ) - 5;//-5, 5
         printf("Particle [%i] : Mass [%f], Charge [%f] \n", i, Mass[i], Charge[i]);
     }
 
@@ -199,10 +199,10 @@ int main() {
     
     /*create root*/ 
     
-    struct node *root = newNode(0, 20.0, 0, 0); //Size of s=20 and pint of reference being (0,0) equiv. to (x_root, y_root)  
+    struct node *root = newNode(0, 11.0, 0, 0); //Size of s=20 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     printf("Root square size is: %f\n", root->s);
 
-    //Count Particles in Cell/Node:
+    //count(root, A, N_PARTICLES,)
     int *quadrant_ = malloc(sizeof(int)*4);
     quadrant_[0] = 0; quadrant_[1] = 0; quadrant_[2] = 0; quadrant_[3] = 0;
     

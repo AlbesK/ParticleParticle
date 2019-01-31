@@ -6,7 +6,7 @@
 
 void ppmodel(int particles, int dimensions, double* V, double (*F)[dimensions], double (*A)[dimensions], double* Mass, double* Charge){
 
-double Total_Force[dimensions];
+double Total_Force[dimensions]; Total_Force[0]=0; Total_Force[1]=0; Total_Force[2]=0;
 double Total_Energy = 0.0;
 
 for(int i = 0; i < particles; i++){
@@ -53,12 +53,17 @@ for(int i = 0; i < particles; i++){
     Total_Energy += V[i];
     
 }
+/*
 printf("The total force on this system is: [ ");
 for(int n=0; n< dimensions; n++){
 printf( "%f ", Total_Force[n]);
 }
 printf("]\n");
 printf("The total energy of this system is: %f\n", Total_Energy);
+*/
+
+
+
 
 
 
