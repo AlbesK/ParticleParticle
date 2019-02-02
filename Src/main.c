@@ -12,7 +12,7 @@ int main()
   clock_t start, end;
   char term;
   clock_t ts, te;
-  ts = clock();
+  
   //New code for writing to output file:
 
   int N[15];
@@ -23,7 +23,7 @@ int main()
   //end of new code for file writing
   double dur=0;
 
-  for(int i=0; i<15; i++){ //New Loop to save the data to be plotted
+  for(int i=1; i<16; i++){ //New Loop to save the data to be plotted
   
     N_PARTICLES = pow(2,i);
 
@@ -67,6 +67,7 @@ int main()
       printf("-----\n");
       
       double duration;
+      
       for(int j=0; j<10; j++){
         start = clock(); //start timer
         ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
@@ -94,8 +95,8 @@ int main()
     Time[i]=dur;
 
   }
-  te = clock();
-  double d = (double)(te-ts)/CLOCKS_PER_SEC;;
+  
+  double d = (double)(end-start)/CLOCKS_PER_SEC;;
   printf("Program took %f\n", d);
   type_Data(N, Time);
   return 0;
