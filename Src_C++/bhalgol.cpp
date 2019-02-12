@@ -166,7 +166,7 @@ Body* Quad::search(Point p)
             return NW->search(p); 
         } 
   
-        // Indicates botLeftTree 
+        // Indicates SW
         else
         { 
             if (SW == NULL) 

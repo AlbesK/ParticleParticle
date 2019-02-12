@@ -14,16 +14,18 @@ int main()
   clock_t ts, te;
   
   //New code for writing to output file:
-
-  int N[15];
-  double Time[15];
-  int type_Data(int*, double*);
+  int l = 18;
+  int N[l-1];
+  double Time[l-1];
+  int type_Data(int*, double*, int length, double* sd);
+  double calculateSD(double data[]);
+  
   int reset(int, int dimensions, double*, double (*F)[dimensions]);
-
+  double sd[10];
   //end of new code for file writing
-  double dur=0;
-
-  for(int i=1; i<16; i++){ //New Loop to save the data to be plotted
+  double data[10];
+  
+  for(int i=1; i<l; i++){ //New Loop to save the data to be plotted
   
     N_PARTICLES = pow(2,i);
 
@@ -73,36 +75,55 @@ int main()
         ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
         end = clock(); //end timer
         duration = (double)(end-start)/CLOCKS_PER_SEC;
-        dur += duration;
+        data[j] = duration;
         reset(N_PARTICLES, N_DIMENSIONS, V, F);
       }
       
-      
+      sd[i], duration = calculateSD(data);
       
       printf("Time elapsed is: %f (s)\n", duration); //To see the duration on the calculation model only
 
-      
-
       free(A); //Free memory
+      free(F);
       free(Mass);
       free(V);  
-      free(F);
       free(Charge);
+      
+      
       printf("Released the memory succesfully\n");  
     
-    dur = (dur/10);
+    
     N[i]=N_PARTICLES;
-    Time[i]=dur;
+    Time[i]=duration;
 
   }
   
   double d = (double)(end-start)/CLOCKS_PER_SEC;;
   printf("Program took %f\n", d);
-  type_Data(N, Time);
+  type_Data(N, Time, l-1, sd);
   return 0;
 }
 
-int type_Data(int* N, double* Time){
+double calculateSD(double data[])
+{
+    double sum = 0.0, mean, standardDeviation = 0.0;
+
+    int i;
+
+    for(i=0; i<10; ++i)
+    {
+        sum += data[i];
+    }
+
+    mean = sum/10;
+
+    for(i=0; i<10; ++i)
+        standardDeviation += pow(data[i] - mean, 2);
+
+    return sqrt(standardDeviation/10), mean;
+}
+
+int type_Data(int* N, double* Time, int length, double* sd){
   
   FILE * f; 
   f = fopen("/home/albes/Desktop/plot.txt", "w"); /* open the file for writing*/
@@ -111,10 +132,10 @@ int type_Data(int* N, double* Time){
   
 
   /* write 10 lines of text into the file stream*/    
-  fprintf(f, "N_PARTICLES,TIME\n");
+  fprintf(f, "N_PARTICLES,TIME,SD\n");
 
-  for(i = 0; i < 15;i++){
-      fprintf (f, "%d,%f\n", N[i], Time[i]);
+  for(i = 0; i < length;i++){
+      fprintf (f, "%d,%f,%f\n", N[i], Time[i], sd[i]);
   }
 
   /* close the file*/  
