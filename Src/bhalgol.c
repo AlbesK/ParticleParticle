@@ -94,6 +94,7 @@ void dispose(struct node* root)
         free(root);
     }
 }
+//New functions
 
 void subdivide(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_){
     
@@ -103,18 +104,23 @@ void subdivide(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_)
     }
     
     printf("Subdivide call\n");
-    int parent=nd->data; //Keep Parent Cell
     int twig=0;
     
     twig--;
     nd->NE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]+nd->s/4);
+    nd->NE->parent = nd->data;
+    
     twig--;
     nd->SE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]-nd->s/4);
+    nd->SE->parent = nd->data;
+    
     twig--;
     nd->SW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]-nd->s/4);
+    nd->SW->parent = nd->data;
+    
     twig--;
     nd->NW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]+nd->s/4); 
-
+    nd->NW->parent = nd->data;
     
 
 }
@@ -131,12 +137,12 @@ int count(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_){
     printf("Count call\n");
     int total_count= 0;
     for(int i=0; i<N_PARTICLES; i++){
-        if(A[i][0] < (nd->center[0]+nd->s) && A[i][1] < (nd->center[0]+nd->s)){
+        if(A[i][0] < (nd->center[0]+nd->s) && 
+        A[i][0] > (nd->center[0]-nd->s) && 
+        A[i][1] < (nd->center[1]+nd->s) &&
+        A[i][1] > (nd->center[1]-nd->s))
+        {
             total_count++;
-            if(A[i][0]>= nd->center[0] && A[i][1]>= nd->center[1]){quadrant_[0]++;}
-            if(A[i][0]>= nd->center[0] && A[i][1]<= nd->center[1]){quadrant_[1]++;}
-            if(A[i][0]<= nd->center[0] && A[i][1]<= nd->center[1]){quadrant_[2]++;}
-            if(A[i][0]<= nd->center[0] && A[i][1]>= nd->center[1]){quadrant_[3]++;}            
         }  
         
     }
@@ -152,7 +158,7 @@ int count(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_){
 /*
     search for a specific key
 */
-struct node* Search(struct node* root, int data, double (*A)[2], int N_PARTICLES) {
+struct node* Search(struct node* root, int data) {
 	// base condition for recursion
 	// if tree/sub-tree is empty, return and exit
 	if(root == NULL){return NULL;}
@@ -160,10 +166,10 @@ struct node* Search(struct node* root, int data, double (*A)[2], int N_PARTICLES
 	printf("%i \n",root->data); // Print data
     if(root->data == data){return root;}
 	
-    Search(root->NW, data, A, N_PARTICLES);     // Visit NW subtree
-	Search(root->SW, data, A, N_PARTICLES);    // Visit SW subtree
-    Search(root->SE, data, A, N_PARTICLES);   // Visit SE subtree
-    Search(root->NE, data, A, N_PARTICLES);  // Visit NE subtree
+    Search(root->NW, data);     // Visit NW subtree
+	Search(root->SW, data);    // Visit SW subtree
+    Search(root->SE, data);   // Visit SE subtree
+    Search(root->NE, data);  // Visit NE subtree
 }
 
 
@@ -210,9 +216,9 @@ int main() {
     
     void check(struct node* root, double (*A)[2], int N_PARTICLES, int* quadrant_ ){
         
-        root->parent = root->data;
+        
         if(root==NULL){
-            Search()
+            return;
         }
         int number = 0;
         int leaf = 0;
@@ -221,11 +227,20 @@ int main() {
         if(number>=2){
             printf("T>=2\n");
             subdivide(root, A, N_PARTICLES, quadrant_);
+
+            check(root->NE, A, N_PARTICLES, quadrant_);
+            check(root->SE, A, N_PARTICLES, quadrant_);
+            check(root->SW, A, N_PARTICLES, quadrant_);
+            check(root->NW, A, N_PARTICLES, quadrant_);
+
+
         }
-        if(number==1){root->data = root->data+leaf++;}
+        if(number==1){root->data = -root->data+leaf++;}
         if(number==0){root=NULL;}
 
-        check(root->NW, A, N_PARTICLES, quadrant_);
+
+        
+        
     }
 
     check(root, A, N_PARTICLES, quadrant_);
