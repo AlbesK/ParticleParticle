@@ -12,22 +12,27 @@ int main()
   clock_t start, end;
   char term;
   clock_t ts, te;
-  
+  int l=0;
   //New code for writing to output file:
-  int l = 18;
+  printf("The power with base 4?\n");
+  scanf("%d", &l); 
+  
+
   int N[l-1];
   double Time[l-1];
   int type_Data(int*, double*, int length, double* sd);
   double calculateSD(double data[]);
   
   int reset(int, int dimensions, double*, double (*F)[dimensions]);
-  double sd[10];
+  double sd[l-1];
   //end of new code for file writing
-  double data[10];
-  
+  double data[4];
+  ts = clock();
+
+
   for(int i=1; i<l; i++){ //New Loop to save the data to be plotted
   
-    N_PARTICLES = pow(2,i);
+    N_PARTICLES = pow(4,i);
 
     
       /* Commenting for now for automatic input for the plot
@@ -70,7 +75,7 @@ int main()
       
       double duration;
       
-      for(int j=0; j<10; j++){
+      for(int j=0; j<4; j++){
         start = clock(); //start timer
         ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
         end = clock(); //end timer
@@ -97,10 +102,10 @@ int main()
     Time[i]=duration;
 
   }
-  
-  double d = (double)(end-start)/CLOCKS_PER_SEC;;
+  te = clock();
+  double d = (double)(te-ts)/CLOCKS_PER_SEC;
   printf("Program took %f\n", d);
-  type_Data(N, Time, l-1, sd);
+  type_Data(N, Time, l, sd);
   return 0;
 }
 
@@ -110,31 +115,28 @@ double calculateSD(double data[])
 
     int i;
 
-    for(i=0; i<10; ++i)
+    for(i=0; i<4; ++i)
     {
         sum += data[i];
     }
 
-    mean = sum/10;
+    mean = sum/4;
 
-    for(i=0; i<10; ++i)
+    for(i=0; i<4; ++i)
         standardDeviation += pow(data[i] - mean, 2);
 
-    return sqrt(standardDeviation/10), mean;
+    return sqrt(standardDeviation/3), mean;
 }
 
 int type_Data(int* N, double* Time, int length, double* sd){
   
   FILE * f; 
   f = fopen("/home/albes/Desktop/plot.txt", "w"); /* open the file for writing*/
-  int i;
-  
-  
 
   /* write 10 lines of text into the file stream*/    
   fprintf(f, "N_PARTICLES,TIME,SD\n");
 
-  for(i = 0; i < length;i++){
+  for(int i = 0; i < length;i++){
       fprintf (f, "%d,%f,%f\n", N[i], Time[i], sd[i]);
   }
 
