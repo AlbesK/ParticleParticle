@@ -18,13 +18,13 @@ int main()
   scanf("%d", &l); 
   
 
-  int N[l-1];
-  double Time[l-1];
+  int N[l-1]; N[0]=0; 
+  double Time[l-1]; Time[0]=0;
   int type_Data(int*, double*, int length, double* sd);
   double calculateSD(double data[]);
   
   int reset(int, int dimensions, double*, double (*F)[dimensions]);
-  double sd[l-1];
+  double sd[l-1]; sd[0]=0;
   //end of new code for file writing
   double data[4];
   ts = clock();
