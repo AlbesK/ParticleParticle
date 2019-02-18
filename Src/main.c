@@ -80,11 +80,11 @@ int main()
         ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
         end = clock(); //end timer
         duration = (double)(end-start)/CLOCKS_PER_SEC;
-        data[j] = duration;
+        //data[j] = duration;
         reset(N_PARTICLES, N_DIMENSIONS, V, F);
       }
       
-      sd[i], duration = calculateSD(data);
+      //sd[i], duration = calculateSD(data);
       
       printf("Time elapsed is: %f (s)\n", duration); //To see the duration on the calculation model only
 

@@ -63,16 +63,17 @@ void display_tree(struct node* nd)
     if (nd == NULL)
         return;
     /* display node data */
-    printf("Node %d <%f, %f> Size [%f]\n",nd->data, nd->center[0], nd->center[1], nd->s);
+    printf(" %*c(%d) \n %*c[%f, %f] \n %*c[%f]\n\n",50, ' ', nd->data, 42,' ', nd->center[0], nd->center[1], 47, ' ', nd->s);
+    
     if(nd->NE != NULL)
-        printf("(NE:%d)  ",nd->NE->data);
+        printf("%*c|NE:%d|  ",34,' ',nd->NE->data);
     if(nd->SE != NULL)
-        printf("(SE:%d)  ",nd->SE->data);
+        printf("|SE:%d|  ",nd->SE->data);
     if(nd->SW != NULL)
-        printf("(SW:%d)  ",nd->SW->data);
+        printf("|SW:%d|  ",nd->SW->data);
     if(nd->NW != NULL)
-        printf("(NW:%d)",nd->NW->data);
-    printf("\n");
+        printf("|NW:%d|",nd->NW->data);
+    printf("\n\n");
  
     display_tree(nd->NE);
     display_tree(nd->SE);
@@ -103,7 +104,7 @@ void subdivide(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_)
         return;
     }
     
-    printf("Subdivide call\n");
+    //printf("Subdivide call\n");
     int twig=0;
     
     twig--;
@@ -134,7 +135,8 @@ int count(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_){
 
     quadrant_[0]=0; quadrant_[1]=0; quadrant_[2]=0; quadrant_[3]=0; 
     
-    printf("Count call\n");
+    //printf("Count call\n");
+    
     int total_count= 0;
     for(int i=0; i<N_PARTICLES; i++){
         if(A[i][0] < (nd->center[0]+nd->s) && 
@@ -146,7 +148,7 @@ int count(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_){
         }  
         
     }
-    printf("Total number of particles: %i\n", total_count);
+    //printf("Total number of particles: %i\n", total_count);
 
     return total_count;
 
@@ -179,8 +181,14 @@ struct node* Search(struct node* root, int data) {
 int main() {
 
     int N_DIMENSIONS = 2;
-    int N_PARTICLES = 8;
-    char c;
+    int N_PARTICLES;
+    char term;
+    clock_t ts, te;
+    printf("How many particles?\n");
+      if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {
+        printf("Failure: Not an integer. Try again\n");
+        exit(-1);
+      } 
     //Physical_Properties_Array[Particles Position][Masses][Charges][..etc..] Perhaps better for all of these pointers.  
     double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
     double *V = malloc(sizeof(double) * N_PARTICLES );
@@ -192,18 +200,18 @@ int main() {
     char x[2]={'x', 'y'};
 
     for (int i=0; i < N_PARTICLES; i++){
-        printf("Particle [%i] with ", i);
+        //printf("Particle [%i] with ", i);
         for(int j=0; j < N_DIMENSIONS; j++){
             A[i][j] = 20 * ( (double) rand() / (double) RAND_MAX ) - 10; //-10, 10
-            printf("%c:[%f] ", x[j],  A[i][j]);
+            //printf("%c:[%f] ", x[j],  A[i][j]);
         }
-        printf("\n");
+        //printf("\n");
     }
 
     for (int i = 0; i < N_PARTICLES; i++){
         Mass[i] = 5 * ((double) rand() / (double) RAND_MAX ); //1,5
         Charge[i] = 10 * ((double) rand() / (double) RAND_MAX ) - 5;//-5, 5
-        printf("Particle [%i] : Mass [%f], Charge [%f] \n", i, Mass[i], Charge[i]);
+        //printf("Particle [%i] : Mass [%f], Charge [%f] \n", i, Mass[i], Charge[i]);
     }
 
 
@@ -225,7 +233,7 @@ int main() {
         
         number = count(root, A, N_PARTICLES, quadrant_);
         if(number>=2){
-            printf("T>=2\n");
+            //printf("T>=2\n");
             subdivide(root, A, N_PARTICLES, quadrant_);
 
             check(root->NE, A, N_PARTICLES, quadrant_);
@@ -242,12 +250,14 @@ int main() {
         
         
     }
-
+    ts = clock();
     check(root, A, N_PARTICLES, quadrant_);
-
+    te = clock();
+    double d = (double)(te-ts)/CLOCKS_PER_SEC;
+    
     
 
-    display_tree(root);
+    //display_tree(root);
 
     /* remove the whole tree */
     dispose(root);
@@ -258,6 +268,7 @@ int main() {
     free(F);
     free(Charge);
     printf("Released memory succesfuly\n");
+    printf("Program took %f\n", d);
 
     return 0; 
 }

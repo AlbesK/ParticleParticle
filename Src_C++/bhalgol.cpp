@@ -30,10 +30,10 @@ class Body {
     this->pos = pos;
     this->mass = m;
     this->charge = c;
-    std::cout <<"Body constructed\n";
+    //std::cout <<"Body constructed\n";
   }
 
-  ~Body(){std::cout <<"Body destructed\n";}; //Destructor
+  ~Body(){}//std::cout <<"Body destructed\n";}; //Destructor
 
 
 };
@@ -78,7 +78,7 @@ class Quad {
         this->s = s;
     } 
 
-    ~Quad(){std::cout << "Class Destructed\n";} 
+    ~Quad(){}//std::cout << "Class Destructed\n";} 
     void insert(Body*); 
     Body* search(Point); 
     bool inBoundary(Point); 
@@ -255,9 +255,10 @@ int main()
     clock_t start, end;
     start = clock(); //start timer
 
-    int N_PARTICLES = 8; int N_DIMENSIONS = 2; int seed=1; 
+    int N_PARTICLES; int N_DIMENSIONS = 2; int seed=1; 
 
-
+    printf("How many particles?\n");
+    scanf("%d", &N_PARTICLES);
     //Pointers and their initialization
 
     std::vector<Body> *Bodies;
@@ -279,9 +280,9 @@ int main()
 
     (*Bodies)[i] = Body(mass, charge, Point((10 * ((double) rand() / (double) RAND_MAX )-5), (10 * ((double) rand() / (double) RAND_MAX )-5)));
 
-    std::cout << "Body position is: [" << (*Bodies)[i].pos.x << "] [" <<  (*Bodies)[i].pos.y << "] " << std::endl;
-    std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
-    (*Bodies)[i].charge << std::endl;
+    //std::cout << "Body position is: [" << (*Bodies)[i].pos.x << "] [" <<  (*Bodies)[i].pos.y << "] " << std::endl;
+    //std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
+    //(*Bodies)[i].charge << std::endl;
     }
 
     Quad root(Point(0, 0), 11);
@@ -290,8 +291,8 @@ int main()
         root.insert(&(*Bodies)[i]);
     } 
 
-    display_tree(&root);
-    dispose(&root);
+    //display_tree(&root);
+    //dispose(&root);
     //Free Memory
     delete  Bodies; 
     
