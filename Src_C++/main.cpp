@@ -3,86 +3,106 @@
 #include <ctime>
 #include <cmath>
 #include <vector>
-//#include "Functions.h"
 
+//#include "Functions.h"
+ 
+    
+
+    
+  
+    
+  
 //ios::sync_with_stdio(false);
+
+  //Object approach
+class Point {
+  public:
+  double x, y, z;
+  
+  void setX(double x){
+    this->x = x;
+  }
+  void setY(double y){
+    this->y = y;
+  }
+  void setZ(double z){
+    this->z = z;
+  }
+
+  ~Point(){};
+  
+};
+
+class Body: public Point {
+  public:
+  
+  double mass;   //Mass
+  double charge;  //Charge
+  
+  
+
+  Body(double m = 1.0, double c = -1.0)
+  { //Default Constructor
+    
+    this->mass = m;
+    this->charge = c;
+    std::cout <<"Body constructed\n";
+  }
+
+  ~Body(){std::cout <<"Body destructed\n";}; //Destructor
+
+
+};
+
+  
 
 int main()
 {
   // Particle Number and Dimensions
+  
+  clock_t start, end;
+  start = clock(); //start timer
 
   int N_PARTICLES = 4; int N_DIMENSIONS = 3; int seed=1; 
 
-   //Object approach
-  class Body {
-    private:
-
-    std::vector<double> position; //Position
-    double mass;   //Mass
-    double charge;  //Charge
-
-    public:
-
-    Body(double rx = 1.0, double ry = 2.0, double rz = 3.0, double m = 1.0, double c = -1.0)
-    { //Default Constructor
-      this->position = {rx,ry,rz};
-      this->mass = m;
-      this->charge = c;
-    }
-
-    //~Body();//Destructor
-
-    std::vector<double> getPosition(){
-      return this->position;
-    }
-
-    double getMass(){
-      return this->mass;
-    }
-
-    double getCharge(){
-      return this->charge;
-    }
-
-  };
-
-  Body b1;
   
   //Pointers and their initialization
-  std::vector< std::vector<double> > *Matrix;
-  std::vector<double> *Mass;
-  std::vector<double> *Charge; 
   
-  Matrix = new std::vector< std::vector<double> >(N_PARTICLES, std::vector<double>(N_DIMENSIONS));
-  Mass = new std::vector<double>(N_PARTICLES);
-  Charge = new std::vector<double>(N_PARTICLES);
+  std::vector<Body> *Bodies;
+  Bodies = new std::vector<Body>(N_PARTICLES);
+
 
   srand(seed); //Seed time for random value generation 
 
   //Initialising the matrices
-
-  for (int i=0; i < N_PARTICLES; i++){
-    for(int j=0; j < N_DIMENSIONS; j++){
-
-      (*Matrix)[i][j] = (10 * ( (double) rand() / (double) RAND_MAX ));
-      std::cout << (*Matrix)[i][j] << std::endl;
-    
-    } 
-  }
-
+  double rx, ry, rz;
+  double mass, charge;
   
 
-  for (int i = 0; i < N_PARTICLES; i++){
+  for(int i=0; i<N_PARTICLES; i++){
+     
+     mass = (5 * ((double) rand() / (double) RAND_MAX ));
+     charge = (10 * ((double) rand() / (double) RAND_MAX )-5);
     
-    (*Mass)[i] = (5 * ((double) rand() / (double) RAND_MAX ));
-    (*Charge)[i] = (10 * ((double) rand() / (double) RAND_MAX )-5);
-    std::cout << "Mass is " << i << (*Mass)[i] << std::endl;
-    std::cout << "Charge is " << i << (*Charge)[i] << std::endl;
-    
+    (*Bodies)[i] = Body(mass, charge);
 
+     (*Bodies)[i].setX((10 * ((double) rand() / (double) RAND_MAX )));
+     (*Bodies)[i].setY((10 * ((double) rand() / (double) RAND_MAX )));
+     (*Bodies)[i].setZ((10 * ((double) rand() / (double) RAND_MAX )));
+
+     std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << 
+     " " << (*Bodies)[i].z << std::endl;
+     std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
+     (*Bodies)[i].charge << std::endl;
   }
 
+
   //Free Memory
-  delete Matrix; delete Mass; delete Charge;
+  delete  Bodies; 
+  std::cout << "Pointers deleted succesfuly" << std::endl;
+
+  end = clock(); //end timer
+  double duration = (double)(end-start)/CLOCKS_PER_SEC;
+  printf("Time elapsed is: %f (s)\n", duration);
 
 }
