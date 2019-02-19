@@ -14,28 +14,28 @@ int main()
   clock_t ts, te;
   int l=0;
   //New code for writing to output file:
-  printf("The power with base 4?\n");
-  scanf("%d", &l); 
+  //printf("The power with base 4?\n");
+  //scanf("%d", &l); 
   
 
-  int N[l-1]; N[0]=0; 
-  double Time[l-1]; Time[0]=0;
-  int type_Data(int*, double*, int length, double* sd);
-  double calculateSD(double data[]);
+  // int N[l-1]; N[0]=0; 
+  // double Time[l-1]; Time[0]=0;
+  // int type_Data(int*, double*, int length, double* sd);
+  // double calculateSD(double data[]);
   
-  int reset(int, int dimensions, double*, double (*F)[dimensions]);
-  double sd[l-1]; sd[0]=0;
+  // int reset(int, int dimensions, double*, double (*F)[dimensions]);
+  // double sd[l-1]; sd[0]=0;
   //end of new code for file writing
-  double data[4];
-  ts = clock();
+  // double data[4];
+  // ts = clock();
 
 
-  for(int i=1; i<l; i++){ //New Loop to save the data to be plotted
+  //for(int i=1; i<l; i++){ //New Loop to save the data to be plotted
   
     N_PARTICLES = pow(4,i);
 
     
-      /* Commenting for now for automatic input for the plot
+       Commenting for now for automatic input for the plot
       printf("How many particles?\n");
       if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
         printf("Failure: Not an integer. Try again\n");
@@ -46,16 +46,16 @@ int main()
       if (N_PARTICLES < 2) {
         printf("Insufficent number of particles %i\n", N_PARTICLES);
         exit(-1);
-      } */
+      } 
 
       //Seed input to check values with trial of OpenMP
-      int seed = 1;
-      /*
+      //int seed = 1;
+      
       printf("Seed value?\n");
       if (scanf("%d%c", &seed, &term) != 2 || term != '\n') {
         printf("Failure: Not an integer. Try again\n");
         exit(-1);
-      } */
+      } 
 
 
 
@@ -75,14 +75,14 @@ int main()
       
       double duration;
       
-      for(int j=0; j<4; j++){
+      //for(int j=0; j<4; j++){
         start = clock(); //start timer
         ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
         end = clock(); //end timer
         duration = (double)(end-start)/CLOCKS_PER_SEC;
         //data[j] = duration;
-        reset(N_PARTICLES, N_DIMENSIONS, V, F);
-      }
+        //reset(N_PARTICLES, N_DIMENSIONS, V, F);
+      // }
       
       //sd[i], duration = calculateSD(data);
       
@@ -98,14 +98,14 @@ int main()
       printf("Released the memory succesfully\n");  
     
     
-    N[i]=N_PARTICLES;
-    Time[i]=duration;
+    // N[i]=N_PARTICLES;
+    // Time[i]=duration;
 
   }
-  te = clock();
-  double d = (double)(te-ts)/CLOCKS_PER_SEC;
+  // te = clock();
+  // double d = (double)(te-ts)/CLOCKS_PER_SEC;
   printf("Program took %f\n", d);
-  type_Data(N, Time, l, sd);
+  //type_Data(N, Time, l, sd);
   return 0;
 }
 
