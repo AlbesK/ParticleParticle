@@ -242,7 +242,7 @@ void dispose(Quad* root)
         dispose(root->NW);
 
         
-        free(root);
+        delete root;
     }
 }
 
@@ -262,6 +262,7 @@ int type_Data(int* N, double* T, int si){
   fclose (f);
   return 0;
 }
+
 
 int main()
 {
@@ -308,18 +309,20 @@ int main()
     //(*Bodies)[i].charge << std::endl;
     }
 
-    Quad root(Point(0, 0), 11);
+    Quad* root = new Quad(Point(0, 0), 11);
 
     start = clock();
     for(int i=0; i<N_PARTICLES; i++){
-        root.insert(&(*Bodies)[i]);
+        root->insert(&(*Bodies)[i]);
     } 
     end = clock(); //end timer
 
     //display_tree(&root);
     //dispose(&root);
     //Free Memory
-    delete  Bodies; 
+    delete Bodies; 
+    dispose(root);
+    
     
     std::cout << "Pointers deleted succesfuly" << std::endl;
 
