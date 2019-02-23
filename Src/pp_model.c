@@ -47,20 +47,21 @@ for(int i = 0; i < particles; i++){
 	for(int n = 0; n < dimensions; n++){
     
     Total_Force[n] += F[i][n];
-    
+  
     }
     
     Total_Energy += V[i];
+
     
 }
-/*
+
 printf("The total force on this system is: [ ");
 for(int n=0; n< dimensions; n++){
 printf( "%f ", Total_Force[n]);
 }
 printf("]\n");
 printf("The total energy of this system is: %f\n", Total_Energy);
-*/
+
 
 
 

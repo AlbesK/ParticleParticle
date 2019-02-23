@@ -32,10 +32,9 @@ int main()
 
   //for(int i=1; i<l; i++){ //New Loop to save the data to be plotted
   
-    N_PARTICLES = pow(4,i);
 
     
-       Commenting for now for automatic input for the plot
+  //Commenting for now for automatic input for the plot
       printf("How many particles?\n");
       if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
         printf("Failure: Not an integer. Try again\n");
@@ -49,7 +48,7 @@ int main()
       } 
 
       //Seed input to check values with trial of OpenMP
-      //int seed = 1;
+      int seed = 1;
       
       printf("Seed value?\n");
       if (scanf("%d%c", &seed, &term) != 2 || term != '\n') {
@@ -101,10 +100,10 @@ int main()
     // N[i]=N_PARTICLES;
     // Time[i]=duration;
 
-  }
+  //}
   // te = clock();
   // double d = (double)(te-ts)/CLOCKS_PER_SEC;
-  printf("Program took %f\n", d);
+  printf("Program took %f\n", duration);
   //type_Data(N, Time, l, sd);
   return 0;
 }

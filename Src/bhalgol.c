@@ -13,7 +13,7 @@ struct node  //Node Structure
     //How deep is it, starting from -1 (Root makes it )
     double s; //Original size corresponding to this node, and for s/d calculation
     double center[2]; //Center of this quad of this node
-    int parent;
+
 
     struct node *NW; 
     struct node *NE;

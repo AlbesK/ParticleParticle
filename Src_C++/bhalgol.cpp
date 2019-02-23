@@ -246,19 +246,42 @@ void dispose(Quad* root)
     }
 }
 
+int type_Data(int* N, double* T, int si){
+  
+  FILE * f; 
+  f = fopen("/home/albes/Desktop/log.txt", "w"); /* open the file for writing*/
 
+  /* write 10 lines of text into the file stream*/    
+  fprintf(f, "N_PARTICLES,TIME\n");
+
+  for(int i = 0; i < si;i++){
+      fprintf (f, "%d,%f\n", N[i], T[i]);
+  }
+
+  /* close the file*/  
+  fclose (f);
+  return 0;
+}
 
 int main()
 {
     // Particle Number and Dimensions
 
     clock_t start, end;
-    start = clock(); //start timer
+   
 
     int N_PARTICLES; int N_DIMENSIONS = 2; int seed=1; 
+    //New code for file writting
+    // int si = 9;
+    // int N[si]; double T[si];
+    // int type_Data(int*, double*, int);
 
+    //for(int i=0; i<si; i++){
     printf("How many particles?\n");
     scanf("%d", &N_PARTICLES);
+    
+    //N_PARTICLES = pow(10,i);
+    
     //Pointers and their initialization
 
     std::vector<Body> *Bodies;
@@ -287,9 +310,11 @@ int main()
 
     Quad root(Point(0, 0), 11);
 
+    start = clock();
     for(int i=0; i<N_PARTICLES; i++){
         root.insert(&(*Bodies)[i]);
     } 
+    end = clock(); //end timer
 
     //display_tree(&root);
     //dispose(&root);
@@ -298,8 +323,13 @@ int main()
     
     std::cout << "Pointers deleted succesfuly" << std::endl;
 
-    end = clock(); //end timer
+    
     double duration = (double)(end-start)/CLOCKS_PER_SEC;
     printf("Time elapsed is: %f (s)\n", duration);
+    //N[i]=N_PARTICLES;
+    //T[i]=duration;
+    //}
+    //type_Data(N, T, si);
 
 }
+
