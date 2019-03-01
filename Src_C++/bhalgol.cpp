@@ -2,6 +2,7 @@
 #include <cmath>
 #include <ctime>
 #include <vector>
+#define COUNT 12
 
   //Object approach
 class Point {
@@ -45,6 +46,7 @@ class Quad {
     Point r; //Center 
     double s; //Size
     int data; //Key data
+    int capacity=1; //Capacity for the node
 
     Body *b;
     
@@ -98,11 +100,12 @@ void Quad::insert(Body *body)
   
     // We are at a quad of unit area 
     // We cannot subdivide this quad further 
-    if (abs((r.x+s/2) - (r.x-s/2)) <= 1 && 
-        abs((r.y+s/2) - (r.y-s/2)) <= 1) 
+    if (abs((r.x+s/2) - (r.x-s/2)) <= 0.000001 && 
+        abs((r.y+s/2) - (r.y-s/2)) <= 0.000001) 
     { 
         if (b == NULL) 
             b = body; 
+            
         return; 
     } 
   
@@ -111,17 +114,22 @@ void Quad::insert(Body *body)
         // Indicates NW 
         if (body->pos.y > r.y) 
         { 
-            if (NW == NULL) 
-                NW = new Quad(Point(r.x-s/4, r.y+s/4), s/2); 
+            if (NW == NULL){ 
+                NW = new Quad(Point(r.x-s/4, r.y+s/4), s/2);
+                NW->data = data++; 
+            }
             NW->insert(body); 
         } 
   
         // Indicates SW 
         else
         { 
-            if (SW == NULL) 
-                SW = new Quad(Point(r.x-s/4, r.y-s/4), s/2); 
+            if (SW == NULL){ 
+                SW = new Quad(Point(r.x-s/4, r.y-s/4), s/2);
+                SW->data = data++;
+            } 
             SW->insert(body); 
+            
         } 
     } 
     else
@@ -129,16 +137,21 @@ void Quad::insert(Body *body)
         // Indicates NE 
         if (body->pos.y > r.y) 
         { 
-            if (NE == NULL) 
+            if (NE == NULL){ 
                 NE = new Quad(Point(r.x+s/4, r.y+s/4), s/2);
+                NE->data = data++;
+            }
             NE->insert(body); 
+            
         } 
   
         // Indicates SE 
         else
         { 
-            if (SE == NULL) 
-                SE = new Quad(Point(r.x+s/4, r.y-s/4), s/2); 
+            if (SE == NULL){ 
+                SE = new Quad(Point(r.x+s/4, r.y-s/4), s/2);
+                SE->data = data++;
+            } 
             SE->insert(body); 
         } 
     } 
@@ -208,12 +221,15 @@ bool Quad::inBoundary(Point p)
 /*
     Recursively display tree or subtree
 */
-void display_tree(Quad *nd)
+
+void display_tree(Quad *nd, int distance)
 {
     if (nd == NULL)
         return;
+
     /* display node data */
-    printf("Quad Node at <%f, %f> Size [%f]\n", nd->r.x, nd->r.y, nd->s);
+    printf("%*c |%d| \n",distance,' ', nd->data);
+    printf("%*c",distance-2, ' ');
     if(nd->NE != NULL)
         printf("(NE:%d)  ",nd->NE->data);
     if(nd->SE != NULL)
@@ -224,24 +240,45 @@ void display_tree(Quad *nd)
         printf("(NW:%d)",nd->NW->data);
     printf("\n");
  
-    display_tree(nd->NE);
-    display_tree(nd->SE);
-    display_tree(nd->SW);
-    display_tree(nd->NW);
+    display_tree(nd->NE, distance-10);
+    display_tree(nd->SE, distance-10);
+    display_tree(nd->SW, distance-10);
+    display_tree(nd->NW, distance-10);
 }
 
+void print_tree(Quad *r, int l)
+{
+    int i;
+
+    if(!r) return;
+
+    print_tree(r->NE, l+3);
+    for(i=0; i<l; ++i) printf(" ");
+    printf("%d\n", r->NE->data);
+    
+    print_tree(r->SE, l+3);
+    for(i=0; i<l; ++i) printf(" ");
+    printf("%d\n", r->SE->data);
+    
+    print_tree(r->SW, l+3);
+    for(i=0; i<l; ++i) printf(" ");
+    printf("%d\n", r->SW->data);
+    
+    print_tree(r->NW, l+3);
+}
+
+
 //Deallocate memory for all nodes:  
-void dispose(Quad* root)
+void destroy(Quad* root)
 {
     if(root != NULL)
     {
         
-        dispose(root->NE);
-        dispose(root->SE);
-        dispose(root->SW);
-        dispose(root->NW);
+        destroy(root->NE);
+        destroy(root->SE);
+        destroy(root->SW);
+        destroy(root->NW);
 
-        
         delete root;
     }
 }
@@ -262,6 +299,10 @@ int type_Data(int* N, double* T, int si){
   fclose (f);
   return 0;
 }
+
+// void force_summation(Quad* root){
+//     root->b;
+// }
 
 
 int main()
@@ -295,7 +336,6 @@ int main()
     double rx, ry;
     double mass, charge;
 
-
     for(int i=0; i<N_PARTICLES; i++){
         
     mass = (5 * ((double) rand() / (double) RAND_MAX ));
@@ -309,7 +349,7 @@ int main()
     //(*Bodies)[i].charge << std::endl;
     }
 
-    Quad* root = new Quad(Point(0, 0), 11);
+    Quad* root = new Quad();
 
     start = clock();
     for(int i=0; i<N_PARTICLES; i++){
@@ -317,16 +357,16 @@ int main()
     } 
     end = clock(); //end timer
 
-    //display_tree(&root);
-    //dispose(&root);
+    //print_tree(root,0);
+
+    display_tree(root,60);
+    //destroy(&root);
     //Free Memory
     delete Bodies; 
-    dispose(root);
-    
+    destroy(root);
     
     std::cout << "Pointers deleted succesfuly" << std::endl;
 
-    
     double duration = (double)(end-start)/CLOCKS_PER_SEC;
     printf("Time elapsed is: %f (s)\n", duration);
     //N[i]=N_PARTICLES;

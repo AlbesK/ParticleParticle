@@ -4,66 +4,76 @@
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 
+struct point
+{
+    double x;
+    double y;
+};
 
+struct body
+{
+    struct point pos; // Position
+    double mass;   // Mass
+    double charge;  // Charge
+};
 
-struct node  //Node Structure
+struct quad  // Node Structure
 { 
-    int data; //key value
-    //How deep is it, starting from -1 (Root makes it )
-    double s; //Original size corresponding to this node, and for s/d calculation
-    double center[2]; //Center of this quad of this node
+    int data; // key value
+    // How deep is it, starting from -1 (Root makes it )
+    double s; // Original size corresponding to this quad, and for s/d calculation
+    struct point centre; // Center of this quad of this quad
+    bool divided; // Check if it has divided
+    int capacity; // Capacity for this node
 
+    struct body *b;
 
-    struct node *NW; 
-    struct node *NE;
-    struct node *SE;
-    struct node *SW; 
+    struct quad *NW; 
+    struct quad *NE;
+    struct quad *SE;
+    struct quad *SW; 
 }; 
   
-/* newNode() allocates a new node with the given data and NULL NW, NE, SE, SW pointers */
-struct node* newNode(int data, double s, double x, double y) 
+/* newNode() allocates a new quad with the given data and NULL NW, NE, SE, SW pointers */
+struct quad* newNode(int data, double s, double x, double y) 
 { 
-  // Allocate memory for new node  
-  struct node* node = (struct node*)malloc(sizeof(struct node)); 
-  
-  // Assign data to this node 
-  node->data = data;
-  node->s = s; //Size of square halfed each time is called with same size for each but new coordinates for their centres
-  node->center[0] = x; node->center[1] = y;
-  
-  // Initialize all children as NULL 
-  node->NE = NULL; 
-  node->SE = NULL;
-  node->SW = NULL;
-  node->NW = NULL;
+    // Allocate memory for new quad  
+    struct quad* quad = (struct quad*)malloc(sizeof(struct quad)); 
 
+    // If out of memory abort:
+    if(quad == NULL)
+    {
+        fprintf (stderr, "Out of memory!!! (create_node)\n");
+        exit(1);
+    }
+    // Assign data to this quad 
+    quad->data = data;
+    quad->s = s; //Size of square halfed each time is called with same size for each but new coordinates for their centres
+    quad->centre.x = x; quad->centre.y = y;
+    quad->capacity = 1;
+    quad->b = NULL;
 
-  return(node); 
+    // Initialize all children as NULL 
+    quad->NE = NULL; 
+    quad->SE = NULL;
+    quad->SW = NULL;
+    quad->NW = NULL;
+
+    return(quad); 
 } 
 
-/*
-    compare two integers
-*/
-int compare(int left,int right)
-{
-    if(left > right)
-        return 1;
-    if(left < right)
-        return -1;
-    return 0;
-}
 	
-
 /*
     Recursively display tree or subtree
 */
-void display_tree(struct node* nd)
+void display_tree(struct quad* nd)
 {
     if (nd == NULL)
         return;
-    /* display node data */
-    printf(" %*c(%d) \n %*c[%f, %f] \n %*c[%f]\n\n",50, ' ', nd->data, 42,' ', nd->center[0], nd->center[1], 47, ' ', nd->s);
+    /* display quad data */
+    printf(" %*c(%d) \n %*c[%f, %f] \n %*c[%f]\n\n",50, ' ', nd->data, 42,' ', nd->centre.x, nd->centre.y, 47, ' ', nd->s);
     
     if(nd->NE != NULL)
         printf("%*c|NE:%d|  ",34,' ',nd->NE->data);
@@ -82,7 +92,7 @@ void display_tree(struct node* nd)
 }
 
 //Deallocate memory for all nodes:  
-void dispose(struct node* root)
+void dispose(struct quad* root)
 {
     if(root != NULL)
     {
@@ -91,14 +101,12 @@ void dispose(struct node* root)
         dispose(root->SW);
         dispose(root->NW);
 
-        
         free(root);
     }
 }
 //New functions
 
-void subdivide(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_){
-    
+void subdivide(struct quad* nd){
     
     if(nd == NULL){
         return;
@@ -106,61 +114,61 @@ void subdivide(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_)
     
     //printf("Subdivide call\n");
     int twig=0;
+    //twig--;
+    nd->NE = newNode(0, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y+nd->s/4);
     
-    twig--;
-    nd->NE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]+nd->s/4);
-    nd->NE->parent = nd->data;
     
-    twig--;
-    nd->SE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]-nd->s/4);
-    nd->SE->parent = nd->data;
+    //twig--;
+    nd->SE = newNode(0, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y-nd->s/4);
     
-    twig--;
-    nd->SW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]-nd->s/4);
-    nd->SW->parent = nd->data;
     
-    twig--;
-    nd->NW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]+nd->s/4); 
-    nd->NW->parent = nd->data;
+    //twig--;
+    nd->SW = newNode(0, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y-nd->s/4);
     
+    
+    //twig--;
+    nd->NW = newNode(0, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y+nd->s/4); 
+
+    nd->divided = true;
 
 }
 
-
-int count(struct node* nd, double (*A)[2], int N_PARTICLES, int* quadrant_){
-    
-    if (nd==NULL) {
-        return 0;
-    }
-
-    quadrant_[0]=0; quadrant_[1]=0; quadrant_[2]=0; quadrant_[3]=0; 
-    
-    //printf("Count call\n");
-    
-    int total_count= 0;
-    for(int i=0; i<N_PARTICLES; i++){
-        if(A[i][0] < (nd->center[0]+nd->s) && 
-        A[i][0] > (nd->center[0]-nd->s) && 
-        A[i][1] < (nd->center[1]+nd->s) &&
-        A[i][1] > (nd->center[1]-nd->s))
-        {
-            total_count++;
-        }  
-        
-    }
-    //printf("Total number of particles: %i\n", total_count);
-
-    return total_count;
-
-
+bool contains(struct quad* nd, struct point p){
+    return (p.x < nd->centre.x+nd->s/2 &&
+        p.x > nd->centre.x-nd->s/2 &&
+        p.y < nd->centre.y+nd->s/2 &&
+        p.y > nd->centre.x-nd->s/2);
 }
 
+void insert(struct quad* nd, struct body* b, int index){
+    
+    // Current quad cannot contain it 
+    if (!contains(nd,b->pos)){ 
+        return; 
+    } 
+    int leaf = 0;
+    if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
+        nd->b = b;
+        nd->data = index;
+    } else{
+        if(nd->divided!=true){ // Check if the quad quad has subdivided
+            subdivide(nd);
+        }
+            insert(nd->NE, b, index);
+            insert(nd->SE, b, index);
+            insert(nd->SW, b, index);
+            insert(nd->NW, b, index);
+
+
+    }
+
+}
 
 
 /*
     search for a specific key
 */
-struct node* Search(struct node* root, int data) {
+struct quad* Search(struct quad* root, int data) {
 	// base condition for recursion
 	// if tree/sub-tree is empty, return and exit
 	if(root == NULL){return NULL;}
@@ -174,55 +182,87 @@ struct node* Search(struct node* root, int data) {
     Search(root->NE, data);  // Visit NE subtree
 }
 
-
-
-
   
 int main() {
 
-    int N_DIMENSIONS = 2;
+    int N_DIMENSIONS = 2; int seed=1;
     int N_PARTICLES;
     char term;
     clock_t ts, te;
     printf("How many particles?\n");
-      if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {
+    if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {
         printf("Failure: Not an integer. Try again\n");
         exit(-1);
-      } 
-    //Physical_Properties_Array[Particles Position][Masses][Charges][..etc..] Perhaps better for all of these pointers.  
-    double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
-    double *V = malloc(sizeof(double) * N_PARTICLES );
-    double *Mass = malloc(sizeof(double) * N_PARTICLES);
-    double *Charge = malloc(sizeof(double) * N_PARTICLES);
-    double (*F)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
+    } 
+
+    printf("Calculating\n");
+    if (N_PARTICLES < 2) {
+        printf("Insufficent number of particles %i\n", N_PARTICLES);
+        exit(-1);
+    } 
+    struct body* bodies = malloc(sizeof(struct body)*N_PARTICLES);
 
     //Initialise values:
     char x[2]={'x', 'y'};
+    srand(seed);
 
     for (int i=0; i < N_PARTICLES; i++){
-        //printf("Particle [%i] with ", i);
-        for(int j=0; j < N_DIMENSIONS; j++){
-            A[i][j] = 20 * ( (double) rand() / (double) RAND_MAX ) - 10; //-10, 10
-            //printf("%c:[%f] ", x[j],  A[i][j]);
-        }
-        //printf("\n");
-    }
 
-    for (int i = 0; i < N_PARTICLES; i++){
-        Mass[i] = 5 * ((double) rand() / (double) RAND_MAX ); //1,5
-        Charge[i] = 10 * ((double) rand() / (double) RAND_MAX ) - 5;//-5, 5
-        //printf("Particle [%i] : Mass [%f], Charge [%f] \n", i, Mass[i], Charge[i]);
-    }
+            double mass = 5 * ((double) rand() / (double) RAND_MAX ); // 1,5
+            double charge = 10 * ((double) rand() / (double) RAND_MAX ) - 5; // -5, 5
+            struct point p = {.x = 100 * ((double) rand() / (double) RAND_MAX ) - 50, // -50, 50
+            .y = 100 * ((double) rand() / (double) RAND_MAX ) - 50};
 
+            struct body b = {.mass = mass, .charge = charge, .pos = p };
 
-    int* quadrant_ = malloc(sizeof(int)* 4);
+            bodies[i] = b;
+            printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
     
+    }
+
+
     /*create root*/ 
     
-    struct node *root = newNode(0, 11, 0, 0); //Size of s=11 and pint of reference being (0,0) equiv. to (x_root, y_root)  
+    struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     printf("Root square size is: %f\n", root->s);
     
-    void check(struct node* root, double (*A)[2], int N_PARTICLES, int* quadrant_ ){
+    ts = clock();
+    for(int i=0; i<N_PARTICLES; i++){
+        insert(root, &bodies[i], i+1);
+    }
+    te = clock();
+    double d = (double)(te-ts)/CLOCKS_PER_SEC;
+    
+    display_tree(root);
+
+    /* remove the whole tree */
+    dispose(root);
+    free(bodies);
+
+    printf("Released memory succesfuly\n");
+    printf("Program took %f\n", d);
+
+    return 0; 
+}
+
+/*         if(quadrant_[0]>=2){
+            twig--;
+            nd->NE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]+nd->s/4);
+        } 
+        if(quadrant_[1]>=2){
+            twig--;
+            nd->SE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]-nd->s/4);
+        }
+        if(quadrant_[2]>=0){
+            twig--;
+            nd->SW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]-nd->s/4);
+        }
+        if(quadrant_[3]>=0){
+            twig--;
+            nd->NW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]+nd->s/4);
+        }
+
+    void check(struct quad* root, double (*A)[2], int N_PARTICLES, int* quadrant_ ){
         
         
         if(root==NULL){
@@ -250,43 +290,5 @@ int main() {
         
         
     }
-    ts = clock();
-    check(root, A, N_PARTICLES, quadrant_);
-    te = clock();
-    double d = (double)(te-ts)/CLOCKS_PER_SEC;
-    
-    
 
-    //display_tree(root);
-
-    /* remove the whole tree */
-    dispose(root);
-    free(quadrant_);
-    free(A); //Free memory
-    free(Mass);
-    free(V);  
-    free(F);
-    free(Charge);
-    printf("Released memory succesfuly\n");
-    printf("Program took %f\n", d);
-
-    return 0; 
-}
-
-/*         if(quadrant_[0]>=2){
-            twig--;
-            nd->NE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]+nd->s/4);
-        } 
-        if(quadrant_[1]>=2){
-            twig--;
-            nd->SE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]-nd->s/4);
-        }
-        if(quadrant_[2]>=0){
-            twig--;
-            nd->SW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]-nd->s/4);
-        }
-        if(quadrant_[3]>=0){
-            twig--;
-            nd->NW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]+nd->s/4);
-        }
 */
