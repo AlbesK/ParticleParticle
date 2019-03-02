@@ -113,7 +113,7 @@ void subdivide(struct quad* nd){
         return;
     }
     
-    printf("Subdivide call at: %i \n", nd->data);
+    //printf("Subdivide call at: %i \n", nd->data);
     //twig--;
     nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4);
     
@@ -155,24 +155,33 @@ void insert(struct quad* nd, struct body* b, int *index, int *found){
         nd->capacity = nd->capacity++;
         nd->data = *index;
         *found = 1;
-        printf("Pointer to %i\n", nd->data);
+        //printf("Pointer to %i\n", nd->data);
     } else{
         if(nd->divided!=true){ // Check if the quad quad has subdivided
             subdivide(nd);
         }
         if(*found==0){
             insert(nd->NE, b, index, found);
-            printf("skipped NE\n");
-
+            if(*found==1){return;}
+        
+            //printf("skipped NE\n");
+               
             insert(nd->SE, b, index, found);
-            printf("skipped SE\n");
-
+            if(*found==1){return;}
+            
+            //printf("skipped SE\n");
+        
             insert(nd->SW, b, index, found);
-            printf("skipped SW\n");
-
+            if(*found==1){return;}
+            
+            //printf("skipped SW\n");
+        
             insert(nd->NW, b, index, found);
-            printf("skipped NW\n");
+            if(*found==1){return;}
+            
+            //printf("skipped NW\n");
         }
+        
         
     }
 
@@ -231,7 +240,7 @@ int main() {
             struct body b = {.mass = mass, .charge = charge, .pos = p };
 
             bodies[i] = b;
-            printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
+            //printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
     
     }
 
@@ -239,7 +248,7 @@ int main() {
     /*create root*/ 
     
     struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
-    printf("Root square size is: %f\n", root->s);
+    //printf("Root square size is: %f\n", root->s);
     
     ts = clock();
     for(int i=0; i<N_PARTICLES; i++){
@@ -249,7 +258,7 @@ int main() {
     te = clock();
     double d = (double)(te-ts)/CLOCKS_PER_SEC;
     
-    display_tree(root);
+    //display_tree(root);
 
     /* remove the whole tree */
     dispose(root);
