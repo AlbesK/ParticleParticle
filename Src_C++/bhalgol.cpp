@@ -13,7 +13,7 @@ class Point {
   Point(double x, double y){this->x=x; this->y=y;}
 
   ~Point(){};
-  
+   
 };
 
 class Body {
@@ -61,7 +61,7 @@ class Quad {
     Quad() 
     { 
         this->r = Point();
-        this->s = 11;
+        this->s = 110;
         this->b = NULL;
         this->NE  = NULL; 
         this->SE = NULL; 
@@ -81,7 +81,7 @@ class Quad {
     } 
 
     ~Quad(){}//std::cout << "Class Destructed\n";} 
-    void insert(Body*); 
+    void insert(Body*, int index); 
     Body* search(Point); 
     bool inBoundary(Point); 
 
@@ -89,7 +89,7 @@ class Quad {
 };
 
 // Insert a body into the quadtree 
-void Quad::insert(Body *body) 
+void Quad::insert(Body *body, int index) 
 { 
     if (body == NULL) 
         return; 
@@ -100,25 +100,25 @@ void Quad::insert(Body *body)
   
     // We are at a quad of unit area 
     // We cannot subdivide this quad further 
-    if (abs((r.x+s/2) - (r.x-s/2)) <= 0.000001 && 
-        abs((r.y+s/2) - (r.y-s/2)) <= 0.000001) 
+    if (abs((r.x+s/2) - (r.x-s/2)) <= 1 && 
+        abs((r.y+s/2) - (r.y-s/2)) <= 1) 
     { 
-        if (b == NULL) 
-            b = body; 
-            
+    if (b == NULL) 
+        b = body; 
+        this->data = index;
         return; 
     } 
   
-    if (body->pos.x < r.x) 
+    if (body->pos.x < this->r.x) 
     { 
         // Indicates NW 
         if (body->pos.y > r.y) 
         { 
-            if (NW == NULL){ 
-                NW = new Quad(Point(r.x-s/4, r.y+s/4), s/2);
-                NW->data = data++; 
+            if (this->NW == NULL){ 
+                this->NW = new Quad(Point(r.x-s/4, r.y+s/4), s/2);
+            
             }
-            NW->insert(body); 
+            this->NW->insert(body, index); 
         } 
   
         // Indicates SW 
@@ -126,9 +126,9 @@ void Quad::insert(Body *body)
         { 
             if (SW == NULL){ 
                 SW = new Quad(Point(r.x-s/4, r.y-s/4), s/2);
-                SW->data = data++;
+
             } 
-            SW->insert(body); 
+            SW->insert(body, index); 
             
         } 
     } 
@@ -139,9 +139,8 @@ void Quad::insert(Body *body)
         { 
             if (NE == NULL){ 
                 NE = new Quad(Point(r.x+s/4, r.y+s/4), s/2);
-                NE->data = data++;
             }
-            NE->insert(body); 
+            NE->insert(body, index); 
             
         } 
   
@@ -150,9 +149,9 @@ void Quad::insert(Body *body)
         { 
             if (SE == NULL){ 
                 SE = new Quad(Point(r.x+s/4, r.y-s/4), s/2);
-                SE->data = data++;
+                
             } 
-            SE->insert(body); 
+            SE->insert(body, index); 
         } 
     } 
 } 
@@ -218,55 +217,6 @@ bool Quad::inBoundary(Point p)
             p.y > this->r.y-this->s/2 ); 
 }
 
-/*
-    Recursively display tree or subtree
-*/
-
-void display_tree(Quad *nd, int distance)
-{
-    if (nd == NULL)
-        return;
-
-    /* display node data */
-    printf("%*c |%d| \n",distance,' ', nd->data);
-    printf("%*c",distance-2, ' ');
-    if(nd->NE != NULL)
-        printf("(NE:%d)  ",nd->NE->data);
-    if(nd->SE != NULL)
-        printf("(SE:%d)  ",nd->SE->data);
-    if(nd->SW != NULL)
-        printf("(SW:%d)  ",nd->SW->data);
-    if(nd->NW != NULL)
-        printf("(NW:%d)",nd->NW->data);
-    printf("\n");
- 
-    display_tree(nd->NE, distance-10);
-    display_tree(nd->SE, distance-10);
-    display_tree(nd->SW, distance-10);
-    display_tree(nd->NW, distance-10);
-}
-
-void print_tree(Quad *r, int l)
-{
-    int i;
-
-    if(!r) return;
-
-    print_tree(r->NE, l+3);
-    for(i=0; i<l; ++i) printf(" ");
-    printf("%d\n", r->NE->data);
-    
-    print_tree(r->SE, l+3);
-    for(i=0; i<l; ++i) printf(" ");
-    printf("%d\n", r->SE->data);
-    
-    print_tree(r->SW, l+3);
-    for(i=0; i<l; ++i) printf(" ");
-    printf("%d\n", r->SW->data);
-    
-    print_tree(r->NW, l+3);
-}
-
 
 //Deallocate memory for all nodes:  
 void destroy(Quad* root)
@@ -300,9 +250,31 @@ int type_Data(int* N, double* T, int si){
   return 0;
 }
 
-// void force_summation(Quad* root){
-//     root->b;
-// }
+/*
+    Recursively display tree or subtree
+*/
+void display_tree(Quad *nd)
+{
+    if (nd == NULL)
+        return;
+    /* display quad data */
+    printf(" %*c(%d) \n %*c[%f, %f] \n %*c[%f]\n\n",50, ' ', nd->data, 42,' ', nd->r.x, nd->r.y, 47, ' ', nd->s);
+    
+    if(nd->NE != NULL)
+        printf("%*c|NE:%d|  ",34,' ',nd->NE->data);
+    if(nd->SE != NULL)
+        printf("|SE:%d|  ",nd->SE->data);
+    if(nd->SW != NULL)
+        printf("|SW:%d|  ",nd->SW->data);
+    if(nd->NW != NULL)
+        printf("|NW:%d|",nd->NW->data);
+    printf("\n\n");
+ 
+    display_tree(nd->NE);
+    display_tree(nd->SE);
+    display_tree(nd->SW);
+    display_tree(nd->NW);
+}
 
 
 int main()
@@ -342,7 +314,7 @@ int main()
     charge = (10 * ((double) rand() / (double) RAND_MAX )-5);
 
 
-    (*Bodies)[i] = Body(mass, charge, Point((10 * ((double) rand() / (double) RAND_MAX )-5), (10 * ((double) rand() / (double) RAND_MAX )-5)));
+    (*Bodies)[i] = Body(mass, charge, Point((100 * ((double) rand() / (double) RAND_MAX )-50), (100 * ((double) rand() / (double) RAND_MAX )-50)));
 
     //std::cout << "Body position is: [" << (*Bodies)[i].pos.x << "] [" <<  (*Bodies)[i].pos.y << "] " << std::endl;
     //std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
@@ -353,14 +325,14 @@ int main()
 
     start = clock();
     for(int i=0; i<N_PARTICLES; i++){
-        root->insert(&(*Bodies)[i]);
+        root->insert(&(*Bodies)[i], i+1);
     } 
     end = clock(); //end timer
 
     //print_tree(root,0);
 
-    display_tree(root,60);
-    //destroy(&root);
+    display_tree(root);
+    std::cout << "Body is at point: " << root->search((*Bodies)[1].pos) << std::endl;
     //Free Memory
     delete Bodies; 
     destroy(root);

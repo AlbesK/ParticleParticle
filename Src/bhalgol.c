@@ -52,8 +52,9 @@ struct quad* newNode(int data, double s, double x, double y)
     quad->data = data;
     quad->s = s; //Size of square halfed each time is called with same size for each but new coordinates for their centres
     quad->centre.x = x; quad->centre.y = y;
-    quad->capacity = 1;
+    quad->capacity = 0;
     quad->b = NULL;
+    quad->divided = false;
 
     // Initialize all children as NULL 
     quad->NE = NULL; 
@@ -112,32 +113,32 @@ void subdivide(struct quad* nd){
         return;
     }
     
-    //printf("Subdivide call\n");
-    int twig=0;
+    printf("Subdivide call at: %i \n", nd->data);
     //twig--;
-    nd->NE = newNode(0, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y+nd->s/4);
-    
-    
-    //twig--;
-    nd->SE = newNode(0, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y-nd->s/4);
+    nd->NE = newNode(-1, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y+nd->s/4);
     
     
     //twig--;
-    nd->SW = newNode(0, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y-nd->s/4);
+    nd->SE = newNode(-1, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y-nd->s/4);
     
     
     //twig--;
-    nd->NW = newNode(0, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y+nd->s/4); 
+    nd->SW = newNode(-1, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y-nd->s/4);
+    
+    
+    //twig--;
+    nd->NW = newNode(-1, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y+nd->s/4); 
 
     nd->divided = true;
 
 }
 
 bool contains(struct quad* nd, struct point p){
-    return (p.x < nd->centre.x+nd->s/2 &&
-        p.x > nd->centre.x-nd->s/2 &&
-        p.y < nd->centre.y+nd->s/2 &&
-        p.y > nd->centre.x-nd->s/2);
+        return (p.x < (nd->centre.x+nd->s/2) &&
+        p.x > (nd->centre.x-nd->s/2) &&
+        p.y < (nd->centre.y+nd->s/2) &&
+        p.y > (nd->centre.x-nd->s/2));
+        
 }
 
 void insert(struct quad* nd, struct body* b, int index){
@@ -146,21 +147,29 @@ void insert(struct quad* nd, struct body* b, int index){
     if (!contains(nd,b->pos)){ 
         return; 
     } 
-    int leaf = 0;
+
     if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
         nd->b = b;
+        nd->capacity = nd->capacity++;
         nd->data = index;
+        printf("Pointer to %i\n", nd->data);
+        return;
     } else{
         if(nd->divided!=true){ // Check if the quad quad has subdivided
             subdivide(nd);
         }
-            insert(nd->NE, b, index);
-            insert(nd->SE, b, index);
-            insert(nd->SW, b, index);
-            insert(nd->NW, b, index);
-
-
+        
+        
+        insert(nd->NE, b, index);
+        printf("skipped NE\n");
+        insert(nd->SE, b, index);
+        printf("skipped SE\n");
+        insert(nd->SW, b, index);
+        printf("skipped SW\n");
+        insert(nd->NW, b, index);
+        printf("skipped NE\n");
     }
+
 
 }
 
@@ -223,12 +232,12 @@ int main() {
 
     /*create root*/ 
     
-    struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
+    struct quad *root = newNode(0, 110, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     printf("Root square size is: %f\n", root->s);
     
     ts = clock();
     for(int i=0; i<N_PARTICLES; i++){
-        insert(root, &bodies[i], i+1);
+        insert(root, &bodies[i], i);
     }
     te = clock();
     double d = (double)(te-ts)/CLOCKS_PER_SEC;
@@ -261,7 +270,6 @@ int main() {
             twig--;
             nd->NW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]+nd->s/4);
         }
-
     void check(struct quad* root, double (*A)[2], int N_PARTICLES, int* quadrant_ ){
         
         
@@ -275,20 +283,14 @@ int main() {
         if(number>=2){
             //printf("T>=2\n");
             subdivide(root, A, N_PARTICLES, quadrant_);
-
             check(root->NE, A, N_PARTICLES, quadrant_);
             check(root->SE, A, N_PARTICLES, quadrant_);
             check(root->SW, A, N_PARTICLES, quadrant_);
             check(root->NW, A, N_PARTICLES, quadrant_);
-
-
         }
         if(number==1){root->data = -root->data+leaf++;}
         if(number==0){root=NULL;}
-
-
         
         
     }
-
 */
