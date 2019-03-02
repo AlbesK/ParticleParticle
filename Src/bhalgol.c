@@ -115,19 +115,19 @@ void subdivide(struct quad* nd){
     
     printf("Subdivide call at: %i \n", nd->data);
     //twig--;
-    nd->NE = newNode(-1, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y+nd->s/4);
+    nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4);
     
     
     //twig--;
-    nd->SE = newNode(-1, nd->s/2, nd->centre.x+nd->s/4, nd->centre.y-nd->s/4);
+    nd->SE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4);
     
     
     //twig--;
-    nd->SW = newNode(-1, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y-nd->s/4);
+    nd->SW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4);
     
     
     //twig--;
-    nd->NW = newNode(-1, nd->s/2, nd->centre.x-nd->s/4, nd->centre.y+nd->s/4); 
+    nd->NW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); 
 
     nd->divided = true;
 
@@ -141,8 +141,10 @@ bool contains(struct quad* nd, struct point p){
         
 }
 
-void insert(struct quad* nd, struct body* b, int index){
-    
+void insert(struct quad* nd, struct body* b, int *index, int *found){
+
+    if(*found==1){return;}
+
     // Current quad cannot contain it 
     if (!contains(nd,b->pos)){ 
         return; 
@@ -151,23 +153,27 @@ void insert(struct quad* nd, struct body* b, int index){
     if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
         nd->b = b;
         nd->capacity = nd->capacity++;
-        nd->data = index;
+        nd->data = *index;
+        *found = 1;
         printf("Pointer to %i\n", nd->data);
-        return;
     } else{
         if(nd->divided!=true){ // Check if the quad quad has subdivided
             subdivide(nd);
         }
+        if(*found==0){
+            insert(nd->NE, b, index, found);
+            printf("skipped NE\n");
+
+            insert(nd->SE, b, index, found);
+            printf("skipped SE\n");
+
+            insert(nd->SW, b, index, found);
+            printf("skipped SW\n");
+
+            insert(nd->NW, b, index, found);
+            printf("skipped NW\n");
+        }
         
-        
-        insert(nd->NE, b, index);
-        printf("skipped NE\n");
-        insert(nd->SE, b, index);
-        printf("skipped SE\n");
-        insert(nd->SW, b, index);
-        printf("skipped SW\n");
-        insert(nd->NW, b, index);
-        printf("skipped NE\n");
     }
 
 
@@ -232,12 +238,13 @@ int main() {
 
     /*create root*/ 
     
-    struct quad *root = newNode(0, 110, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
+    struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     printf("Root square size is: %f\n", root->s);
     
     ts = clock();
     for(int i=0; i<N_PARTICLES; i++){
-        insert(root, &bodies[i], i);
+        int found = 0;
+        insert(root, &bodies[i], &i, &found);
     }
     te = clock();
     double d = (double)(te-ts)/CLOCKS_PER_SEC;
