@@ -61,7 +61,7 @@ struct quad* newNode(int data, double s, double x, double y)
     // Assign data to this quad, s size of square, centre point of it
     // b as NULL for not storing a pointer to a body yet, false for divided as it has not subdivided yet.
     quad->data = data;
-    quad->s = s; //Size of square halfed each time is called with same size for each but new coordinates for their centres
+    quad->s = s; 
     quad->centre.x = x; quad->centre.y = y;
     quad->b = NULL;
     quad->divided = false;
@@ -130,13 +130,15 @@ void subdivide(struct quad* nd){
     }
     
     printf("Subdivide call at: %i \n", nd->data);
-    
+    // int twig = 0;
     // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
-    nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4);
-    nd->SE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4);
-    nd->SW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4);
-    nd->NW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); 
-
+    // -1 is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -1.
+    //                                                                                     _____________
+    nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //     |  -+  |  ++  |
+    nd->SE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //     |_(NW)_|_(NE)_|
+    nd->SW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //     | (SW) | (SE) |
+    nd->NW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //     |__--__|__+-__|
+    //                                                                                     
     nd->divided = true; // The node subdivided ( safety for not subdividing again the same node )
 
 }
