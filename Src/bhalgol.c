@@ -1,4 +1,4 @@
-//Barnes-Hut Algorithm -- Implementation
+//Barnes-Hut Algorithm -- Implementation in 2D
 
 #include <stdio.h>
 #include <math.h>
@@ -6,37 +6,47 @@
 #include <time.h>
 #include <stdbool.h>
 
-struct point
+/*
+    Point structure, having for 2D 2 components
+*/
+struct point 
 {
     double x;
     double y;
 };
 
-struct body
+/*
+    Body structure, having coordinates in 2D, mass and charge.
+*/
+struct body 
 {
     struct point pos; // Position
     double mass;   // Mass
     double charge;  // Charge
 };
 
-struct quad  // Node Structure
+/*
+    Quad tree node structure
+*/
+struct quad  
 { 
     int data; // key value
-    // How deep is it, starting from -1 (Root makes it )
-    double s; // Original size corresponding to this quad, and for s/d calculation
-    struct point centre; // Center of this quad of this quad
+    double s; // Original size corresponding to this quad, and for s/d calculation soon
+    struct point centre; // Center of this node
     bool divided; // Check if it has divided
-    int capacity; // Capacity for this node
 
-    struct body *b;
+    struct body *b; // Pointer to body structure
 
+    // Pointers to children of this node taken with respect to compass directions.
     struct quad *NW; 
     struct quad *NE;
     struct quad *SE;
     struct quad *SW; 
 }; 
   
-/* newNode() allocates a new quad with the given data and NULL NW, NE, SE, SW pointers */
+/* 
+    Allocates a new node and respectively fills data, coordinates and size of square for that node.
+*/
 struct quad* newNode(int data, double s, double x, double y) 
 { 
     // Allocate memory for new quad  
@@ -48,11 +58,11 @@ struct quad* newNode(int data, double s, double x, double y)
         fprintf (stderr, "Out of memory!!! (create_node)\n");
         exit(1);
     }
-    // Assign data to this quad 
+    // Assign data to this quad, s size of square, centre point of it
+    // b as NULL for not storing a pointer to a body yet, false for divided as it has not subdivided yet.
     quad->data = data;
     quad->s = s; //Size of square halfed each time is called with same size for each but new coordinates for their centres
     quad->centre.x = x; quad->centre.y = y;
-    quad->capacity = 0;
     quad->b = NULL;
     quad->divided = false;
 
@@ -73,9 +83,10 @@ void display_tree(struct quad* nd)
 {
     if (nd == NULL)
         return;
-    /* display quad data */
+    // Display the data of the node
     printf(" %*c(%d) \n %*c[%f, %f] \n %*c[%f]\n\n",50, ' ', nd->data, 42,' ', nd->centre.x, nd->centre.y, 47, ' ', nd->s);
     
+    // Display data for each node plus some formating it looks better
     if(nd->NE != NULL)
         printf("%*c|NE:%d|  ",34,' ',nd->NE->data);
     if(nd->SE != NULL)
@@ -85,54 +96,55 @@ void display_tree(struct quad* nd)
     if(nd->NW != NULL)
         printf("|NW:%d|",nd->NW->data);
     printf("\n\n");
- 
+    
+    // Recurse through
     display_tree(nd->NE);
     display_tree(nd->SE);
     display_tree(nd->SW);
     display_tree(nd->NW);
 }
 
-//Deallocate memory for all nodes:  
-void dispose(struct quad* root)
+/*
+    Deconstruct quad tree
+*/ 
+void deconstruct_tree(struct quad* root)
 {
     if(root != NULL)
     {
-        dispose(root->NE);
-        dispose(root->SE);
-        dispose(root->SW);
-        dispose(root->NW);
+        deconstruct_tree(root->NE);
+        deconstruct_tree(root->SE);
+        deconstruct_tree(root->SW);
+        deconstruct_tree(root->NW);
 
         free(root);
     }
 }
-//New functions
 
-void subdivide(struct quad* nd){
+/*
+    Subdivide node to 4 quadrants and assign memory dynamically through newNode() function
+*/
+void subdivide(struct quad* nd){ 
     
-    if(nd == NULL){
+    if(nd == NULL){ // If there is no node do not subdive. (safety measure)
         return;
     }
     
-    //printf("Subdivide call at: %i \n", nd->data);
-    //twig--;
+    printf("Subdivide call at: %i \n", nd->data);
+    
+    // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
     nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4);
-    
-    
-    //twig--;
     nd->SE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4);
-    
-    
-    //twig--;
     nd->SW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4);
-    
-    
-    //twig--;
     nd->NW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); 
 
-    nd->divided = true;
+    nd->divided = true; // The node subdivided ( safety for not subdividing again the same node )
 
 }
 
+
+/*
+    Check if the body is residing inside the node through its coordinates
+*/
 bool contains(struct quad* nd, struct point p){
         return (p.x < (nd->centre.x+nd->s/2) &&
         p.x > (nd->centre.x-nd->s/2) &&
@@ -141,46 +153,37 @@ bool contains(struct quad* nd, struct point p){
         
 }
 
-void insert(struct quad* nd, struct body* b, int *index, int *found){
 
-    if(*found==1){return;}
+/*
+    Construct quad tree from bottom-up by putting bodies inside it.
+*/
+int insert(struct quad* nd, struct body* b, int *index){
 
-    // Current quad cannot contain it 
+    // If current quad cannot contain it 
     if (!contains(nd,b->pos)){ 
-        return; 
+        return 0; // Not found yet so return 0 and go in the function again
     } 
 
     if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
         nd->b = b;
-        nd->capacity = nd->capacity++;
-        nd->data = *index;
-        *found = 1;
-        //printf("Pointer to %i\n", nd->data);
-    } else{
+        nd->data = *index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
+        printf("Pointer to %i\n", nd->data);
+        return 1; // Found so return 1 so we can exit the recursion
+    } 
+    else{
+    
         if(nd->divided!=true){ // Check if the quad quad has subdivided
-            subdivide(nd);
+            subdivide(nd); // If not, subdivide!
         }
-        if(*found==0){
-            insert(nd->NE, b, index, found);
-            if(*found==1){return;}
-        
-            //printf("skipped NE\n");
-               
-            insert(nd->SE, b, index, found);
-            if(*found==1){return;}
             
-            //printf("skipped SE\n");
-        
-            insert(nd->SW, b, index, found);
-            if(*found==1){return;}
-            
-            //printf("skipped SW\n");
-        
-            insert(nd->NW, b, index, found);
-            if(*found==1){return;}
-            
-            //printf("skipped NW\n");
-        }
+
+        return insert(nd->NE, b, index)|| // Since insert is an int function, the return statement here returns 1 or 0 if 
+            insert(nd->SE, b, index)||  // a node is found to point the body and thus save the body at. So for example if we
+            insert(nd->SW, b, index)|| // have 2 bodies and the first one is always saved at root ( being empthy and not divided)
+            insert(nd->NW, b, index); // then the second Body 1 if it is at NW subcell after division when it goes to the return state-
+        // -ment it will go through the OR terms as the contain function will not let the first 3 OR terms ( being insert(nd->NE,...) || ... 
+        // to insert(nd->SW,...) and pick the insert(nd->NW,...) to assign. The same process is repeated every time the function calls itself
+        // and checks for where to put the body.
         
         
     }
@@ -190,7 +193,7 @@ void insert(struct quad* nd, struct body* b, int *index, int *found){
 
 
 /*
-    search for a specific key
+    Search quad tree for node with specific data in inorder format
 */
 struct quad* Search(struct quad* root, int data) {
 	// base condition for recursion
@@ -206,7 +209,9 @@ struct quad* Search(struct quad* root, int data) {
     Search(root->NE, data);  // Visit NE subtree
 }
 
-  
+/*
+    Main function to run the program
+*/
 int main() {
 
     int N_DIMENSIONS = 2; int seed=1;
@@ -240,28 +245,27 @@ int main() {
             struct body b = {.mass = mass, .charge = charge, .pos = p };
 
             bodies[i] = b;
-            //printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
+            printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
     
     }
 
 
-    /*create root*/ 
-    
+
+
     struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     //printf("Root square size is: %f\n", root->s);
     
-    ts = clock();
+    ts = clock(); // Start timer
     for(int i=0; i<N_PARTICLES; i++){
-        int found = 0;
-        insert(root, &bodies[i], &i, &found);
+        insert(root, &bodies[i], &i);
     }
-    te = clock();
-    double d = (double)(te-ts)/CLOCKS_PER_SEC;
+    te = clock(); // End timer
+    double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
     
-    //display_tree(root);
+    display_tree(root);
 
-    /* remove the whole tree */
-    dispose(root);
+    // deconstruct the tree
+    deconstruct_tree(root);
     free(bodies);
 
     printf("Released memory succesfuly\n");
@@ -269,44 +273,3 @@ int main() {
 
     return 0; 
 }
-
-/*         if(quadrant_[0]>=2){
-            twig--;
-            nd->NE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]+nd->s/4);
-        } 
-        if(quadrant_[1]>=2){
-            twig--;
-            nd->SE = newNode(nd->data+twig, nd->s/2, nd->center[0]+nd->s/4, nd->center[0]-nd->s/4);
-        }
-        if(quadrant_[2]>=0){
-            twig--;
-            nd->SW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]-nd->s/4);
-        }
-        if(quadrant_[3]>=0){
-            twig--;
-            nd->NW = newNode(nd->data+twig, nd->s/2, nd->center[0]-nd->s/4, nd->center[0]+nd->s/4);
-        }
-    void check(struct quad* root, double (*A)[2], int N_PARTICLES, int* quadrant_ ){
-        
-        
-        if(root==NULL){
-            return;
-        }
-        int number = 0;
-        int leaf = 0;
-        
-        number = count(root, A, N_PARTICLES, quadrant_);
-        if(number>=2){
-            //printf("T>=2\n");
-            subdivide(root, A, N_PARTICLES, quadrant_);
-            check(root->NE, A, N_PARTICLES, quadrant_);
-            check(root->SE, A, N_PARTICLES, quadrant_);
-            check(root->SW, A, N_PARTICLES, quadrant_);
-            check(root->NW, A, N_PARTICLES, quadrant_);
-        }
-        if(number==1){root->data = -root->data+leaf++;}
-        if(number==0){root=NULL;}
-        
-        
-    }
-*/
