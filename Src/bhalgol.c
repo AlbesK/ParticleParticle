@@ -128,17 +128,17 @@ void subdivide(struct quad* nd){
     if(nd == NULL){ // If there is no node do not subdive. (safety measure)
         return;
     }
-    
+
     printf("Subdivide call at: %i \n", nd->data);
-    // int twig = 0;
+    // 
     // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
     // -1 is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -1.
-    //                                                                                     _____________
-    nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //     |  -+  |  ++  |
-    nd->SE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //     |_(NW)_|_(NE)_|
-    nd->SW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //     | (SW) | (SE) |
-    nd->NW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //     |__--__|__+-__|
-    //                                                                                     
+    //                                                                                   _________________
+    nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //   |  (NW)  |  (NE)  |
+    nd->SE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //   |___-+___|___++___|
+    nd->SW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //   |   --   |   +-   |
+    nd->NW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //   |__(SW)__|__(SE)__|
+      
     nd->divided = true; // The node subdivided ( safety for not subdividing again the same node )
 
 }
@@ -165,6 +165,10 @@ int insert(struct quad* nd, struct body* b, int *index){
     if (!contains(nd,b->pos)){ 
         return 0; // Not found yet so return 0 and go in the function again
     } 
+
+    if(index==0){ // If root, subdive
+        subdivide(nd);
+    }
 
     if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
         nd->b = b;
@@ -259,7 +263,7 @@ int main() {
     
     ts = clock(); // Start timer
     for(int i=0; i<N_PARTICLES; i++){
-        insert(root, &bodies[i], &i);
+        insert(root, &bodies[i], &(i));
     }
     te = clock(); // End timer
     double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
