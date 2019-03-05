@@ -255,9 +255,6 @@ int main() {
     
     }
 
-
-
-
     struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     //printf("Root square size is: %f\n", root->s);
     
