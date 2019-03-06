@@ -201,7 +201,7 @@ int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
 
     printf("Count call\n");
 
-    if(nd->b==NULL){ printf("Body in this node is not NULL!!\n");return 0;}
+    if(nd==NULL){ printf("Node is NULL!!\n");return 0;}
 
     for(int i=0; i<N_PARTICLES; i++){
         if(contains(nd, bodies[i].pos)){
@@ -221,6 +221,7 @@ int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
             nd->b = &bodies[index]; 
             nd->data = index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
             printf("Pointer to %i, flag= %i\n", nd->data,flag); 
+            return 0;
     }
 
     if(number>=2){ // I know its Null as there are more than 2 bodies here.
@@ -231,16 +232,15 @@ int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
             nd->data = nd->data-1;
             printf("Pseudobody [%d,%d] at %i\n", centre_x,centre_y, nd->data);
             if(nd->divided!=true){
-                subdivide(nd);
-                count(nd->NE,bodies,N_PARTICLES, flag);
-                count(nd->SE,bodies,N_PARTICLES, flag);
-                count(nd->SW,bodies,N_PARTICLES, flag);
-                count(nd->NW,bodies,N_PARTICLES, flag);    
+                subdivide(nd);  
             }
-            return 0;
     }
-
-    
+    count(nd->NE,bodies,N_PARTICLES, flag);
+    count(nd->SE,bodies,N_PARTICLES, flag);
+    count(nd->SW,bodies,N_PARTICLES, flag);
+    count(nd->NW,bodies,N_PARTICLES, flag);
+    printf("Out of the recursion\n");  
+    return 0;
 }
 
 
