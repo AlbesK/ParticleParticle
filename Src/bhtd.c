@@ -200,56 +200,46 @@ int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
     int index = 0; //Index to save individual body for case 1
 
     printf("Count call\n");
-    if(nd->b!=NULL){return 1;}
+
+    if(nd->b!=NULL){return 0;}
+
     for(int i=0; i<N_PARTICLES; i++){
         if(contains(nd, bodies[i].pos)){
             number++;
             centre_mass += bodies[i].mass;
-            centre_x += bodies[i].mass*bodies[i].pos.x;
-            centre_y += bodies[i].mass*bodies[i].pos.y;
+            centre_x += ((bodies[i].mass)*(bodies[i].pos.x));
+            centre_y += ((bodies[i].mass)*(bodies[i].pos.y));
             total_charge += bodies[i].charge;
             index = i;
         }  
     }
 
-    if(number==0){ printf("Number is 0\n");return 0;}
+    if(number==0){ printf("Number is 0\n"); return 0;}
     printf("Number is: %i\n", number);
 
     if(number==1){
-        if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
             nd->b = &bodies[index]; 
             nd->data = index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
             printf("Pointer to %i, flag= %i\n", nd->data,flag);
-            flag++;
-            return 0;
-        } 
-        else {
-            return 0;
-        }
+            return 0; 
     }
 
     if(number>=2){ // I know its Null as there are more than 2 bodies here.
-        if(nd->b==NULL){
-            struct body pseudobody = {.mass = centre_mass, .pos = (centre_x, centre_y), .charge = total_charge};
+            centre_x = centre_x/centre_mass;
+            centre_y = centre_y/centre_mass;
+            struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
             nd->b = &pseudobody; //Assign pseudobody
             nd->data = nd->data-1;
-            printf("Pseudobody at %i\n", nd->data);
+            printf("Pseudobody [%d,%d] %i\n", centre_x,centre_y, nd->data);
             if(nd->divided!=true){subdivide(nd);}
-        }
-        else {return 0;} 
-
 
     }
 
-
-    return count(nd->NE,bodies,N_PARTICLES, flag)||
+    return (count(nd->NE,bodies,N_PARTICLES, flag)||
     count(nd->SE,bodies,N_PARTICLES, flag)||
     count(nd->SW,bodies,N_PARTICLES, flag)||
-    count(nd->NW,bodies,N_PARTICLES, flag);
+    count(nd->NW,bodies,N_PARTICLES, flag));
 }
-
-
-
 
 
 /*
