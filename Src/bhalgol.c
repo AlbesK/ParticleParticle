@@ -151,7 +151,7 @@ bool contains(struct quad* nd, struct point p){
         return (p.x < (nd->centre.x+nd->s/2) &&
         p.x > (nd->centre.x-nd->s/2) &&
         p.y < (nd->centre.y+nd->s/2) &&
-        p.y > (nd->centre.x-nd->s/2));
+        p.y > (nd->centre.y-nd->s/2));
         
 }
 

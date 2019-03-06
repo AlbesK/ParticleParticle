@@ -126,25 +126,25 @@ void deconstruct_tree(struct quad* root)
 /*
     Subdivide node to 4 quadrants and assign memory dynamically through newNode() function
 */
-void subdivide(struct quad* nd){ 
+void subdivide(struct quad* nd, int* track){ 
     
     if(nd == NULL){ // If there is no node do not subdive. (safety measure)
         return;
     }
-
     printf("Subdivide call at: %i \n", nd->data);
+
     // 
     // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
     // -1 is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -1.
-    //                                                                                   _________________
-    nd->NE = newNode(nd->data-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //   |  (NW)  |  (NE)  |
-    nd->SE = newNode(nd->data-2, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //   |___-+___|___++___|
-    nd->SW = newNode(nd->data-3, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //   |   --   |   +-   |
-    nd->NW = newNode(nd->data-4, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //   |__(SW)__|__(SE)__|
+    //                                                                                           _________________
+    nd->NE = newNode(*track-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //   |  (NW)  |  (NE)  |
+    nd->SE = newNode(*track-2, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //   |___-+___|___++___|
+    nd->SW = newNode(*track-3, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //   |   --   |   +-   |
+    nd->NW = newNode(*track-4, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //   |__(SW)__|__(SE)__|
       
     nd->divided = true; // The node subdivided ( safety for not subdividing again the same node )
-
-    nd->NE->Parent =nd; nd->SE->Parent =nd; nd->SE->Parent =nd; nd->SE->Parent =nd;
+    *track = *track-4;
+    printf("Track is: %i\n", *track);
 
 }
 
@@ -155,7 +155,7 @@ bool contains(struct quad* nd, struct point p){
         return (p.x < (nd->centre.x+nd->s/2) &&
         p.x > (nd->centre.x-nd->s/2) &&
         p.y < (nd->centre.y+nd->s/2) &&
-        p.y > (nd->centre.x-nd->s/2));
+        p.y > (nd->centre.y-nd->s/2));
         
 }
 
@@ -179,7 +179,7 @@ int insert(struct quad* nd, struct body* b, int *index){
     else{
     
         if(nd->divided!=true){ // Check if the quad quad has subdivided
-            subdivide(nd); // If not, subdivide!
+            // subdivide(nd); // If not, subdivide! Temporarily commented out or might not include it at all in the near future for the top dowm approach
         }
             
 
@@ -196,8 +196,8 @@ int insert(struct quad* nd, struct body* b, int *index){
 
 }
 
-int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
-    if(nd==NULL || nd->b!=NULL){ printf("Node is NULL!!\n");return 0;}
+int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
+    if(nd==NULL){ printf("Node is NULL!!\n");return 0;}
 
     int number = 0; // Number of particles
     int centre_x = 0; // x component of pseudobody
@@ -208,7 +208,7 @@ int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
 
     printf("Count call\n");
 
-    for(int i=0; i<N_PARTICLES; i++){
+    for(int i=0; i<*N_PARTICLES; i++){
         if(contains(nd, bodies[i].pos)){
             number++;
             centre_mass += bodies[i].mass;
@@ -225,7 +225,7 @@ int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
     if(number==1){
             nd->b = &bodies[index]; 
             nd->data = index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
-            printf("Pointer to %i, flag= %i\n", nd->data,flag); 
+            printf("Pointer to %i\n", nd->data); 
             printf("Out of the recursion\n");             
             return 0;
     }
@@ -236,16 +236,18 @@ int count(struct quad* nd, struct body* bodies, int N_PARTICLES, int flag){
             centre_y = centre_y/centre_mass;
             struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
             nd->b = &pseudobody; //Assign pseudobody
-            nd->data = nd->data-1;
             printf("Pseudobody [%d,%d] at %i\n", centre_x,centre_y, nd->data);
-            
-                subdivide(nd);  
-            } 
+        
+                subdivide(nd, track);  
+            }
             
     }
 
-    printf("Out of the recursion\n");  
-    return 0;
+    count(nd->NE,bodies,N_PARTICLES, track);
+    count(nd->SE,bodies,N_PARTICLES, track);
+    count(nd->SW,bodies,N_PARTICLES, track);
+    count(nd->NW,bodies,N_PARTICLES, track);
+
 }
 
 
@@ -308,8 +310,8 @@ int main() {
 
 
 
-
-    struct quad *root = newNode(1, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
+    int track = 0; // To keep track of twig numbering
+    struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     //printf("Root square size is: %f\n", root->s);
     
     // ts = clock(); // Start timer
@@ -318,7 +320,7 @@ int main() {
     // }
     // te = clock(); // End timer
     ts = clock(); // Start timer
-    count(root, bodies, N_PARTICLES, 1);
+    count(root, bodies, &N_PARTICLES, &track);
     te = clock(); // End timer
     double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
     
