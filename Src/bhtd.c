@@ -108,7 +108,7 @@ void display_tree(struct quad* nd)
 }
 
 /*
-    Deconstruct quad tree
+    Deconstruct quad tree (Postorder)
 */ 
 void deconstruct_tree(struct quad* root)
 {
@@ -200,9 +200,9 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
     if(nd==NULL){ printf("Node is NULL!!\n");return 0;}
 
     int number = 0; // Number of particles
-    int centre_x = 0; // x component of pseudobody
-    int centre_y = 0; // y component of pseudobody
-    int centre_mass = 0; // Mass of Pseudobody
+    double centre_x = 0; // x component of pseudobody
+    double centre_y = 0; // y component of pseudobody
+    double centre_mass = 0; // Mass of Pseudobody
     int total_charge = 0; // extra term since we have charges!!
     int index = 0; //Index to save individual body for case 1
 
@@ -231,12 +231,13 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
     }
 
     if(number>=2){ // I know its Null as there are more than 2 bodies here.
-            if(nd->divided!=true){
+            if(nd->divided!=true && nd->b==NULL){
+            printf("CENTRE MASS: %f",centre_mass);
             centre_x = centre_x/centre_mass;
             centre_y = centre_y/centre_mass;
             struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
             nd->b = &pseudobody; //Assign pseudobody
-            printf("Pseudobody [%d,%d] at %i\n", centre_x,centre_y, nd->data);
+            printf("Pseudobody [%f,%f] at %i\n", centre_x,centre_y, nd->data);
         
                 subdivide(nd, track);  
             }
@@ -267,6 +268,7 @@ struct quad* Search(struct quad* root, int data) {
     Search(root->SE, data);   // Visit SE subtree
     Search(root->NE, data);  // Visit NE subtree
 }
+
 
 /*
     Main function to run the program

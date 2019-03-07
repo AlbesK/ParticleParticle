@@ -105,7 +105,7 @@ void display_tree(struct quad* nd)
 }
 
 /*
-    Deconstruct quad tree
+    Deconstruct quad tree (Postorder)
 */ 
 void deconstruct_tree(struct quad* root)
 {
@@ -128,12 +128,12 @@ void subdivide(struct quad* nd, int* track){
     if(nd == NULL){ // If there is no node do not subdive. (safety measure)
         return;
     }
-    printf("Subdivide call at: %i \n", nd->data);
+    // printf("Subdivide call at: %i \n", nd->data);
 
     // 
     // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
     // -1 is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -1.
-    //                                                                                           _________________
+    //                                                                                         _________________
     nd->NE = newNode(*track-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //   |  (NW)  |  (NE)  |
     nd->SE = newNode(*track-2, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //   |___-+___|___++___|
     nd->SW = newNode(*track-3, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //   |   --   |   +-   |
@@ -141,7 +141,7 @@ void subdivide(struct quad* nd, int* track){
       
     nd->divided = true; // The node subdivided ( safety for not subdividing again the same node )
     *track = *track-4;
-    printf("Track is: %i\n", *track);
+    // printf("Track is: %i\n", *track);
 
 }
 
@@ -175,7 +175,7 @@ int insert(struct quad* nd, struct body* b, int *index, int* track){
     if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
         nd->b = b;
         nd->data = *index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
-        printf("Pointer to %i\n", nd->data);
+        // printf("Pointer to %i\n", nd->data);
         return 1; // Found so return 1 so we can exit the recursion
     } 
     else{
@@ -198,6 +198,42 @@ int insert(struct quad* nd, struct body* b, int *index, int* track){
 
 
 }
+
+/*
+    Deconstruct quad tree (Postorder)
+*/ 
+void sum(struct quad* root)
+{
+    if(root != NULL)
+    {
+        sum(root->NE);
+        sum(root->SE);
+        sum(root->SW);
+        sum(root->NW);
+
+        printf("data is: %i\n", root->data);
+
+    }
+}
+
+
+        // // free(root);
+        // int number = 0; // Number of particles
+        // int centre_x = 0; // x component of pseudobody
+        // int centre_y = 0; // y component of pseudobody
+        // int centre_mass = 0; // Mass of Pseudobody
+        // int total_charge = 0; // extra term since we have charges!!
+        
+        // centre_mass += bodies[i].mass;
+        // centre_x += ((bodies[i].mass)*(bodies[i].pos.x));
+        // centre_y += ((bodies[i].mass)*(bodies[i].pos.y));
+        // total_charge += bodies[i].charge;
+
+        // centre_x = centre_x/centre_mass;
+        // centre_y = centre_y/centre_mass;
+        // struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
+        // nd->b = &pseudobody; //Assign pseudobody
+        // printf("Pseudobody [%d,%d] at %i\n", centre_x,centre_y, nd->data);
 
 
 /*
@@ -253,7 +289,7 @@ int main() {
             struct body b = {.mass = mass, .charge = charge, .pos = p };
 
             bodies[i] = b;
-            printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
+            // printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
     
     }
 
@@ -268,7 +304,7 @@ int main() {
     double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
     
     display_tree(root);
-
+    sum(root);
     // deconstruct the tree
     deconstruct_tree(root);
     free(bodies);
