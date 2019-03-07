@@ -131,20 +131,30 @@ void subdivide(struct quad* nd, int* track){
     if(nd == NULL){ // If there is no node do not subdive. (safety measure)
         return;
     }
-    printf("Subdivide call at: %i \n", nd->data);
-
-    // 
+    // printf("Subdivide call at: %i \n", nd->data);
     // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
     // -1 is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -1.
-    //                                                                                           _________________
-    nd->NE = newNode(*track-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //   |  (NW)  |  (NE)  |
-    nd->SE = newNode(*track-2, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //   |___-+___|___++___|
-    nd->SW = newNode(*track-3, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //   |   --   |   +-   |
-    nd->NW = newNode(*track-4, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //   |__(SW)__|__(SE)__|
+    //    _____________________
+    //   |          |          |
+    //   |   (NW)   |   (NE)   |
+    //   |          |          |
+    //   |    -+    |    ++    |
+    //   |__________|__________|
+    //   |          |          |
+    //   |    --    |    +-    |
+    //   |          |          |
+    //   |   (SW)   |   (SE)   |
+    //   |__________|__________|
+
+    nd->NE = newNode(*track-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); 
+    nd->SE = newNode(*track-2, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); 
+    nd->SW = newNode(*track-3, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); 
+    nd->NW = newNode(*track-4, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); 
+    
       
     nd->divided = true; // The node subdivided ( safety for not subdividing again the same node )
     *track = *track-4;
-    printf("Track is: %i\n", *track);
+    // printf("Track is: %i\n", *track);
 
 }
 
@@ -225,19 +235,19 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
     if(number==1){
             nd->b = &bodies[index]; 
             nd->data = index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
-            printf("Pointer to %i\n", nd->data); 
-            printf("Out of the recursion\n");             
+            // printf("Pointer to %i\n", nd->data); 
+            // printf("Out of the recursion\n");             
             return 0;
     }
 
     if(number>=2){ // I know its Null as there are more than 2 bodies here.
             if(nd->divided!=true){
-            printf("CENTRE MASS: %f\n",centre_mass);
+            // printf("CENTRE MASS: %f\n",centre_mass);
             centre_x = centre_x/centre_mass;
             centre_y = centre_y/centre_mass;
             struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
             nd->b = &pseudobody; //Assign pseudobody
-            printf("Pseudobody [%f,%f] at %i\n", centre_x,centre_y, nd->data);
+            // printf("Pseudobody [%f,%f] at %i\n", centre_x,centre_y, nd->data);
         
                 subdivide(nd, track);
             }
@@ -268,7 +278,6 @@ struct quad* Search(struct quad* root, int data) {
     Search(root->SE, data);   // Visit SE subtree
     Search(root->NE, data);  // Visit NE subtree
 }
-
 
 /*
     Main function to run the program
@@ -306,21 +315,14 @@ int main() {
             struct body b = {.mass = mass, .charge = charge, .pos = p };
 
             bodies[i] = b;
-            printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
+            // printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
     
     }
-
-
 
     int track = 0; // To keep track of twig numbering
     struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     //printf("Root square size is: %f\n", root->s);
     
-    // ts = clock(); // Start timer
-    // for(int i=0; i<N_PARTICLES; i++){
-    //     insert(root, &bodies[i], &(i));
-    // }
-    // te = clock(); // End timer
     ts = clock(); // Start timer
     count(root, bodies, &N_PARTICLES, &track);
     te = clock(); // End timer
