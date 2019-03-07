@@ -123,23 +123,25 @@ void deconstruct_tree(struct quad* root)
 /*
     Subdivide node to 4 quadrants and assign memory dynamically through newNode() function
 */
-void subdivide(struct quad* nd){ 
+void subdivide(struct quad* nd, int* track){ 
     
     if(nd == NULL){ // If there is no node do not subdive. (safety measure)
         return;
     }
-
     printf("Subdivide call at: %i \n", nd->data);
+
     // 
     // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
     // -1 is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -1.
-    //                                                                                   _________________
-    nd->NE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //   |  (NW)  |  (NE)  |
-    nd->SE = newNode(-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //   |___-+___|___++___|
-    nd->SW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //   |   --   |   +-   |
-    nd->NW = newNode(-1, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //   |__(SW)__|__(SE)__|
+    //                                                                                           _________________
+    nd->NE = newNode(*track-1, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y + nd->s/4); //   |  (NW)  |  (NE)  |
+    nd->SE = newNode(*track-2, nd->s/2, nd->centre.x + nd->s/4, nd->centre.y - nd->s/4); //   |___-+___|___++___|
+    nd->SW = newNode(*track-3, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y - nd->s/4); //   |   --   |   +-   |
+    nd->NW = newNode(*track-4, nd->s/2, nd->centre.x - nd->s/4, nd->centre.y + nd->s/4); //   |__(SW)__|__(SE)__|
       
     nd->divided = true; // The node subdivided ( safety for not subdividing again the same node )
+    *track = *track-4;
+    printf("Track is: %i\n", *track);
 
 }
 
@@ -159,7 +161,7 @@ bool contains(struct quad* nd, struct point p){
 /*
     Construct quad tree from bottom-up by putting bodies inside it.
 */
-int insert(struct quad* nd, struct body* b, int *index){
+int insert(struct quad* nd, struct body* b, int *index, int* track){
 
     // If current quad cannot contain it 
     if (!contains(nd,b->pos)){ 
@@ -167,7 +169,7 @@ int insert(struct quad* nd, struct body* b, int *index){
     } 
 
     if(index==0){ // If root, subdive
-        subdivide(nd);
+        subdivide(nd, track);
     }
 
     if(nd->b==NULL){ // If there is no pointer to body assign it (Essentially capacity is kept at 1 here with this method)
@@ -179,14 +181,14 @@ int insert(struct quad* nd, struct body* b, int *index){
     else{
     
         if(nd->divided!=true){ // Check if the quad quad has subdivided
-            subdivide(nd); // If not, subdivide!
+            subdivide(nd, track); // If not, subdivide!
         }
             
 
-        return insert(nd->NE, b, index)|| // Since insert is an int function, the return statement here returns 1 or 0 if 
-            insert(nd->SE, b, index)||  // a node is found to point the body and thus save the body at. So for example if we
-            insert(nd->SW, b, index)|| // have 2 bodies and the first one is always saved at root ( being empthy and not divided)
-            insert(nd->NW, b, index); // then the second Body 1 if it is at NW subcell after division when it goes to the return state-
+        return insert(nd->NE, b, index, track)|| // Since insert is an int function, the return statement here returns 1 or 0 if 
+            insert(nd->SE, b, index, track)||  // a node is found to point the body and thus save the body at. So for example if we
+            insert(nd->SW, b, index, track)|| // have 2 bodies and the first one is always saved at root ( being empthy and not divided)
+            insert(nd->NW, b, index, track); // then the second Body 1 if it is at NW subcell after division when it goes to the return state-
         // -ment it will go through the OR terms as the contain function will not let the first 3 OR terms ( being insert(nd->NE,...) || ... 
         // to insert(nd->SW,...) and pick the insert(nd->NW,...) to assign. The same process is repeated every time the function calls itself
         // and checks for where to put the body.
@@ -257,10 +259,10 @@ int main() {
 
     struct quad *root = newNode(0, 100, 0, 0); //Size of s=100 and pint of reference being (0,0) equiv. to (x_root, y_root)  
     //printf("Root square size is: %f\n", root->s);
-    
+    int track = 0;
     ts = clock(); // Start timer
     for(int i=0; i<N_PARTICLES; i++){
-        insert(root, &bodies[i], &(i));
+        insert(root, &bodies[i], &(i), &track);
     }
     te = clock(); // End timer
     double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
