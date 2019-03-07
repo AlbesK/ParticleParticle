@@ -203,7 +203,7 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
     double centre_x = 0; // x component of pseudobody
     double centre_y = 0; // y component of pseudobody
     double centre_mass = 0; // Mass of Pseudobody
-    int total_charge = 0; // extra term since we have charges!!
+    double total_charge = 0; // extra term since we have charges!!
     int index = 0; //Index to save individual body for case 1
 
     printf("Count call\n");
@@ -231,15 +231,15 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
     }
 
     if(number>=2){ // I know its Null as there are more than 2 bodies here.
-            if(nd->divided!=true && nd->b==NULL){
-            printf("CENTRE MASS: %f",centre_mass);
+            if(nd->divided!=true){
+            printf("CENTRE MASS: %f\n",centre_mass);
             centre_x = centre_x/centre_mass;
             centre_y = centre_y/centre_mass;
             struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
             nd->b = &pseudobody; //Assign pseudobody
             printf("Pseudobody [%f,%f] at %i\n", centre_x,centre_y, nd->data);
         
-                subdivide(nd, track);  
+                subdivide(nd, track);
             }
             
     }

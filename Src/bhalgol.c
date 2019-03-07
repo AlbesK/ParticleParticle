@@ -219,10 +219,10 @@ void sum(struct quad* root)
 
         // // free(root);
         // int number = 0; // Number of particles
-        // int centre_x = 0; // x component of pseudobody
-        // int centre_y = 0; // y component of pseudobody
-        // int centre_mass = 0; // Mass of Pseudobody
-        // int total_charge = 0; // extra term since we have charges!!
+        // double centre_x = 0; // x component of pseudobody
+        // double centre_y = 0; // y component of pseudobody
+        // double centre_mass = 0; // Mass of Pseudobody
+        // double total_charge = 0; // extra term since we have charges!!
         
         // centre_mass += bodies[i].mass;
         // centre_x += ((bodies[i].mass)*(bodies[i].pos.x));
