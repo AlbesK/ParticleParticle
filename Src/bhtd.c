@@ -134,7 +134,8 @@ void subdivide(struct quad* nd, int* track){
     }
     // printf("Subdivide call at: %i \n", nd->data);
     // Call newNode function for each child node that was Null of the node at hand and assign a memory block of size (struct quad)
-    // -1 is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -1.
+    // -n is assigned here if the node is a 'twig' meaning it is not a 'leaf' for now empty cells are also -n where n integers that
+    // that are unique for each quad.
     //    _____________________
     //   |          |          |
     //   |   (NW)   |   (NE)   |
@@ -206,7 +207,10 @@ int insert(struct quad* nd, struct body* b, int *index){
     }
 
 }
-
+/*
+    Construct tree (top down) by counting N particles in each node and checking if its a twig 
+    (N>2) or a leaf (N=1). Empty nodes are ignored.
+*/
 int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
     if(nd==NULL){ printf("Node is NULL!!\n");return 0;}
 
@@ -227,6 +231,9 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
             centre_y += ((bodies[i].mass)*(bodies[i].pos.y));
             total_charge += bodies[i].charge;
             index = i;
+            if(number>=2){
+                break;
+            }
         }
     }
 
@@ -285,7 +292,7 @@ struct quad* Search(struct quad* root, int data) {
 }
 
 /*
-    Search quad tree for node with specific data in inorder format
+    Print data in quad tree in inorder transversal
 */
 void check(struct quad* root){ //struct body* bd) {
 	// base condition for recursion
@@ -301,9 +308,9 @@ void check(struct quad* root){ //struct body* bd) {
     }
 }
 
-// struct queueclear
-
-
+/*
+    Get the magnitude of the 2D vector
+*/
 double mag(double d[2]){
     double m = sqrt(d[0]*d[0]+d[1]*d[1]);
 }
@@ -316,7 +323,7 @@ double* difference(struct point* p1, struct point* p2, double* d){
 
 void force_summation(struct quad* nd, struct body* bodies, int* N_PARTICLES){
     for(int i=0; i<*N_PARTICLES; i++){
-        
+        nd =
     }
 }
 
