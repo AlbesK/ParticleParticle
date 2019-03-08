@@ -16,7 +16,7 @@ srand(seed); //Seed time for random value generation
 
 for (int i=0; i < particles; i++){
   for(int j=0; j < dimensions; j++){
-    A[i][j] = 20 *  (double) rand() / (double) RAND_MAX -10 ; //Random values between -10, 10
+    A[i][j] = 100 *  (double) rand() / (double) RAND_MAX -50 ; //Random values between -100, 100
   }
 }
 

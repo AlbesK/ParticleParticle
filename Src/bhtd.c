@@ -23,6 +23,7 @@ struct body
     struct point pos; // Position
     double mass;   // Mass
     double charge;  // Charge
+    struct point F_felt;
 };
 
 /*
@@ -183,7 +184,7 @@ int insert(struct quad* nd, struct body* b, int *index){
     if(nd->b==NULL){ // If there is no pointer to body, assign it (Essentially capacity is kept at 1 here with this method)
         nd->b = b;
         nd->data = *index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
-        printf("Pointer to %i\n", nd->data);
+        // printf("Pointer to %i\n", nd->data);
         return 1; // Found so return 1 so we can exit the recursion
     } 
     else{
@@ -216,7 +217,7 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
     double total_charge = 0; // extra term since we have charges!!
     int index = 0; //Index to save individual body for case 1
 
-    printf("Count call\n");
+    // printf("Count call\n");
 
     for(int i=0; i<*N_PARTICLES; i++){
         if(contains(nd, bodies[i].pos)){
@@ -229,8 +230,12 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
         }
     }
 
-    if(number==0){printf("Number is 0\n"); printf("Out of the recursion\n");  return 0;}
-    printf("Number is: %i\n", number);
+    if(number==0){
+        // printf("Number is 0\n"); 
+        // printf("Out of the recursion\n");  
+        return 0;
+    }
+    // printf("Number is: %i\n", number);
 
     if(number==1){
             nd->b = &bodies[index]; 
@@ -280,6 +285,82 @@ struct quad* Search(struct quad* root, int data) {
 }
 
 /*
+    Search quad tree for node with specific data in inorder format
+*/
+void check(struct quad* root){ //struct body* bd) {
+	// base condition for recursion
+	// if tree/sub-tree is empty, return and exit
+	if(root != NULL){
+
+	printf("%i \n",root->data); // Print data
+	
+    check(root->NE);     // Visit NW subtree
+	check(root->SE);    // Visit SW subtree
+    check(root->SW);   // Visit SE subtree
+    check(root->NW);  // Visit NE subtree
+    }
+}
+
+// struct queueclear
+
+
+double mag(double d[2]){
+    double m = sqrt(d[0]*d[0]+d[1]*d[1]);
+}
+
+double* difference(struct point* p1, struct point* p2, double* d){
+    d[0] = p2->x - p1->x;
+    d[1] = p2->y - p1->y;
+    return d;
+}
+
+void force_summation(struct quad* nd, struct body* bodies, int* N_PARTICLES){
+    for(int i=0; i<*N_PARTICLES; i++){
+        
+    }
+}
+
+void xy_data_particles(struct body* bodies, int* N_PARTICLES){
+    FILE * f; 
+    f = fopen("/home/albes/Desktop/bodiestd.txt", "w"); /* open the file for writing*/
+    printf("Writting...\n");
+    /* write 10 lines of text into the file stream*/    
+    fprintf(f, "N,X,Y,M,C\n");
+
+    for(int i = 0; i < *N_PARTICLES;i++){
+        fprintf (f, "%d,%f,%f,%f,%f\n", i, bodies[i].pos.x, bodies[i].pos.y, bodies[i].mass, bodies[i].charge);
+    }
+
+    /* close the file*/  
+    fclose (f);
+    printf("Closed file.\n");
+}
+
+void printdata(struct quad* nd, FILE* f){
+    if (nd == NULL){return;}
+    // Display the data of the node
+    fprintf(f,"%d,%f,%f,%f\n",nd->data, nd->centre.x, nd->centre.y, nd->s);
+    
+    // Recurse through
+    printdata(nd->NE,f);
+    printdata(nd->SE,f);
+    printdata(nd->SW,f);
+    printdata(nd->NW,f);
+}
+
+void xy_trees(struct quad* nd){
+    FILE * f; 
+    f = fopen("/home/albes/Desktop/nodestd.txt", "w"); /* open the file for writing*/
+    printf("Writting...\n");
+    /* write 10 lines of text into the file stream*/    
+    fprintf(f, "N,X,Y,S\n");
+    printdata(nd, f);
+    /* close the file*/  
+    fclose (f);
+    printf("Closed file.\n");
+}
+
+/*
     Main function to run the program
 */
 int main() {
@@ -302,6 +383,7 @@ int main() {
     struct body* bodies = malloc(sizeof(struct body)*N_PARTICLES);
 
     //Initialise values:
+    int S = 100;
     char x[2]={'x', 'y'};
     srand(seed);
 
@@ -309,7 +391,7 @@ int main() {
 
             double mass = 5 * ((double) rand() / (double) RAND_MAX ); // 1,5
             double charge = 10 * ((double) rand() / (double) RAND_MAX ) - 5; // -5, 5
-            struct point p = {.x = 100 * ((double) rand() / (double) RAND_MAX ) - 50, // -50, 50
+            struct point p = {.x = S * ((double) rand() / (double) RAND_MAX ) - S/2, // -50, 50
             .y = 100 * ((double) rand() / (double) RAND_MAX ) - 50};
 
             struct body b = {.mass = mass, .charge = charge, .pos = p };
@@ -328,8 +410,23 @@ int main() {
     te = clock(); // End timer
     double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
     
-    display_tree(root);
-
+    // display_tree(root);
+    // check(root);
+    char c;
+    printf("Do you want to save the data? Y/n \n");
+    scanf("%c", &c);
+    
+    if(c=='Y'){
+        printf("Saving bodies data...\n");
+        xy_data_particles(bodies,&N_PARTICLES);
+        printf("Saving tree data...\n");
+        xy_trees(root);
+        printf("Done\n");
+    } else
+    {
+        printf("Continuing\n");   
+    }
+    
     // deconstruct the tree
     deconstruct_tree(root);
     free(bodies);
@@ -339,3 +436,4 @@ int main() {
 
     return 0; 
 }
+

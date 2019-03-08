@@ -211,7 +211,7 @@ void sum(struct quad* root)
         sum(root->SW);
         sum(root->NW);
 
-        printf("data is: %i\n", root->data);
+        // printf("data is: %i\n", root->data);
 
     }
 }
@@ -244,13 +244,53 @@ struct quad* Search(struct quad* root, int data) {
 	// if tree/sub-tree is empty, return and exit
 	if(root == NULL){return NULL;}
 
-	printf("%i \n",root->data); // Print data
+	// printf("%i \n",root->data); // Print data
     if(root->data == data){return root;}
 	
     Search(root->NW, data);     // Visit NW subtree
 	Search(root->SW, data);    // Visit SW subtree
     Search(root->SE, data);   // Visit SE subtree
     Search(root->NE, data);  // Visit NE subtree
+}
+
+void xy_data_particles(struct body* bodies, int* N_PARTICLES){
+    FILE * f; 
+    f = fopen("/home/albes/Desktop/bodiesbu.txt", "w"); /* open the file for writing*/
+    printf("Writting...\n");
+    /* write 10 lines of text into the file stream*/    
+    fprintf(f, "N,X,Y,M,C\n");
+
+    for(int i = 0; i < *N_PARTICLES;i++){
+        fprintf (f, "%d,%f,%f,%f,%f\n", i, bodies[i].pos.x, bodies[i].pos.y, bodies[i].mass, bodies[i].charge);
+    }
+
+    /* close the file*/  
+    fclose (f);
+    printf("Closed file.\n");
+}
+
+void printdata(struct quad* nd, FILE* f){
+    if (nd == NULL){return;}
+    // Display the data of the node
+    fprintf(f,"%d,%f,%f,%f\n",nd->data, nd->centre.x, nd->centre.y, nd->s);
+    
+    // Recurse through
+    printdata(nd->NE,f);
+    printdata(nd->SE,f);
+    printdata(nd->SW,f);
+    printdata(nd->NW,f);
+}
+
+void xy_trees(struct quad* nd){
+    FILE * f; 
+    f = fopen("/home/albes/Desktop/nodesbu.txt", "w"); /* open the file for writing*/
+    printf("Writting...\n");
+    /* write 10 lines of text into the file stream*/    
+    fprintf(f, "N,X,Y,S\n");
+    printdata(nd, f);
+    /* close the file*/  
+    fclose (f);
+    printf("Closed file.\n");
 }
 
 /*
@@ -303,8 +343,13 @@ int main() {
     te = clock(); // End timer
     double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
     
-    display_tree(root);
+    // display_tree(root);
+    ts = clock();
     sum(root);
+    te = clock();
+    double d2 = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
+
+    printf("Going up the tree took: %f\n", d2);
     // deconstruct the tree
     deconstruct_tree(root);
     free(bodies);
