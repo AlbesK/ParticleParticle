@@ -231,9 +231,6 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
             centre_y += ((bodies[i].mass)*(bodies[i].pos.y));
             total_charge += bodies[i].charge;
             index = i;
-            if(number>=2){
-                break;
-            }
         }
     }
 
@@ -273,7 +270,6 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
 
 }
 
-
 /*
     Search quad tree for node with specific data in inorder format
 */
@@ -292,20 +288,76 @@ struct quad* Search(struct quad* root, int data) {
 }
 
 /*
-    Print data in quad tree in inorder transversal
+    Queue datastructure
 */
-void check(struct quad* root){ //struct body* bd) {
-	// base condition for recursion
-	// if tree/sub-tree is empty, return and exit
-	if(root != NULL){
+/* helper queue for levelorder */
+struct linkedList
+{
+  struct quad* data;
+  struct linkedList* next;
+  
+}; 
+ 
+struct linkedList* begin;
+struct linkedList* end;
 
-	printf("%i \n",root->data); // Print data
-	
-    check(root->NE);     // Visit NW subtree
-	check(root->SE);    // Visit SW subtree
-    check(root->SW);   // Visit SE subtree
-    check(root->NW);  // Visit NE subtree
+/*
+    Push element inside the end part of the queue by allocating new memory dynamically
+*/ 
+void enqueue(struct quad* nd)
+{
+    struct linkedList* temp = malloc(sizeof(struct linkedList));
+    temp->data = nd;
+    temp->next = NULL;
+    if(begin==NULL && end==NULL){
+        begin = end = temp;
     }
+    end->next = temp;
+    end = temp;
+}
+ /*
+    Pop element from queue and free its memory
+ */
+void dequeue()
+{
+    struct linkedList* temp = begin;
+    if(begin==NULL){return;}
+    if(begin==end){
+        begin = NULL;
+        end = NULL;
+    }
+    else{
+        begin = begin->next;
+    }
+    free(temp);
+}
+ 
+bool queue_empty()
+{
+  return (begin==NULL && end==NULL);
+}
+/*
+    Level Order Traversal for force summation ( Breadth first traversal)
+*/
+void levelorder(struct quad* n)
+{
+  enqueue(n);
+  while (!queue_empty())
+  {
+    
+    
+    printf("%d\n",begin->data->data);
+    if (begin->data->NE)
+      enqueue(begin->data->NE);
+    if (begin->data->SE)
+      enqueue(begin->data->SE);
+    if (begin->data->SW)
+      enqueue(begin->data->SW);
+    if (begin->data->NW)
+      enqueue(begin->data->NW);
+    dequeue();
+  }
+  
 }
 
 /*
@@ -314,16 +366,21 @@ void check(struct quad* root){ //struct body* bd) {
 double mag(double d[2]){
     double m = sqrt(d[0]*d[0]+d[1]*d[1]);
 }
-
+/*
+    Get Vector difference from points
+*/
 double* difference(struct point* p1, struct point* p2, double* d){
     d[0] = p2->x - p1->x;
     d[1] = p2->y - p1->y;
     return d;
 }
 
+/*
+    Get force summation
+*/
 void force_summation(struct quad* nd, struct body* bodies, int* N_PARTICLES){
     for(int i=0; i<*N_PARTICLES; i++){
-        nd =
+        // nd = 
     }
 }
 
@@ -416,8 +473,9 @@ int main() {
     count(root, bodies, &N_PARTICLES, &track);
     te = clock(); // End timer
     double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
-    
-    // display_tree(root);
+    printf("Checking queue\n");
+    levelorder(root);
+    display_tree(root);
     // check(root);
     char c;
     printf("Do you want to save the data? Y/n \n");
