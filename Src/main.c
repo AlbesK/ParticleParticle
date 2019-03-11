@@ -76,7 +76,7 @@ int main()
       
       //for(int j=0; j<4; j++){
         start = clock(); //start timer
-        ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
+        ppmodel(&N_PARTICLES, &N_DIMENSIONS, V, F, A, Mass, Charge); //Model
         end = clock(); //end timer
         duration = (double)(end-start)/CLOCKS_PER_SEC;
         //data[j] = duration;

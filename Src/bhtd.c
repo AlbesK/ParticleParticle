@@ -256,7 +256,7 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
             centre_y = centre_y/centre_mass;
             struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
             nd->b = &pseudobody; //Assign pseudobody
-            // printf("Pseudobody [%f,%f] at %i\n", centre_x,centre_y, nd->data);
+            printf("Pseudobody [%f,%f] at %i\n", centre_x,centre_y, nd->data);
         
                 subdivide(nd, track);
             }
@@ -342,11 +342,11 @@ bool queue_empty()
 void levelorder(struct quad* n)
 {
   enqueue(n);
+  
   while (!queue_empty())
   {
-    
-    
     printf("%d\n",begin->data->data);
+    
     if (begin->data->NE)
       enqueue(begin->data->NE);
     if (begin->data->SE)
@@ -356,6 +356,7 @@ void levelorder(struct quad* n)
     if (begin->data->NW)
       enqueue(begin->data->NW);
     dequeue();
+    
   }
   
 }
@@ -363,37 +364,43 @@ void levelorder(struct quad* n)
 /*
     Get the magnitude of the 2D vector
 */
-double mag(double d[2]){
+double mag(double* d){
     double m = sqrt(d[0]*d[0]+d[1]*d[1]);
+    return m;
 }
 /*
     Get Vector difference from points
 */
-double* difference(struct point* p1, struct point* p2, double* d){
+void difference(struct point* p1, struct point* p2, double *d){
     d[0] = p2->x - p1->x;
     d[1] = p2->y - p1->y;
-    return d;
+    printf("P2 [%f,%f], P1 [%f,%f]\n", p2->x, p2->y, p1->x, p1->y); 
 }
 
 /*
     Get force summation
 */
 void force_summation(struct quad* nd, struct body* bodies, int* N_PARTICLES){
+    double d[2] = {0,0};
+    double m;
     for(int i=0; i<*N_PARTICLES; i++){
-        // nd = 
+        difference(&bodies[i].pos, &nd->NE->b->pos, d);
+        m = mag(d);
+        printf("|d|:%f, [%f,%f]\n",m,d[0],d[1]);
     }
 }
 
-void xy_data_particles(struct body* bodies, int* N_PARTICLES){
+void xyt_data_particles(struct body* bodies, int* N_PARTICLES, double t){
     FILE * f; 
     f = fopen("/home/albes/Desktop/bodiestd.txt", "w"); /* open the file for writing*/
     printf("Writting...\n");
     /* write 10 lines of text into the file stream*/    
-    fprintf(f, "N,X,Y,M,C\n");
+    fprintf(f, "N,X,Y,M,C,T\n");
 
     for(int i = 0; i < *N_PARTICLES;i++){
         fprintf (f, "%d,%f,%f,%f,%f\n", i, bodies[i].pos.x, bodies[i].pos.y, bodies[i].mass, bodies[i].charge);
     }
+    fprintf(f,",,,,,%f",t);
 
     /* close the file*/  
     fclose (f);
@@ -461,7 +468,7 @@ int main() {
             struct body b = {.mass = mass, .charge = charge, .pos = p };
 
             bodies[i] = b;
-            // printf("%c:[%f], %c:[%f] \n", x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
+            printf("%d: %c:[%f], %c:[%f] \n",i, x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
     
     }
 
@@ -472,10 +479,11 @@ int main() {
     ts = clock(); // Start timer
     count(root, bodies, &N_PARTICLES, &track);
     te = clock(); // End timer
-    double d = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
+    double t = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
     printf("Checking queue\n");
-    levelorder(root);
-    display_tree(root);
+    // levelorder(root);
+    // display_tree(root);
+    force_summation(root,bodies, &N_PARTICLES);
     // check(root);
     char c;
     printf("Do you want to save the data? Y/n \n");
@@ -483,7 +491,7 @@ int main() {
     
     if(c=='Y'){
         printf("Saving bodies data...\n");
-        xy_data_particles(bodies,&N_PARTICLES);
+        xyt_data_particles(bodies,&N_PARTICLES, t);
         printf("Saving tree data...\n");
         xy_trees(root);
         printf("Done\n");
@@ -497,7 +505,7 @@ int main() {
     free(bodies);
 
     printf("Released memory succesfuly\n");
-    printf("Program took %f\n", d);
+    printf("Program took %f\n", t);
 
     return 0; 
 }

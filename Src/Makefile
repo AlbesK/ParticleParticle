@@ -2,7 +2,7 @@
 SRC = initialiser.c pp_model.c main.c free_array.c
 
 # compilation options
-CC = gcc
+CC = gcc -g
 CFLAGS = --std=c99
 LN = -lm
 
