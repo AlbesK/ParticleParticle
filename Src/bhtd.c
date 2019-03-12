@@ -262,10 +262,11 @@ int count(struct quad* nd, struct body* bodies, int* N_PARTICLES, int* track){
             return 0;
     }
 
-    if(number>=2){ // I know its Null as there are more than 2 bodies here.
+    if(number>1){ // I know its Null as there are more than 2 bodies here.
             if(nd->divided!=true){
             // printf("CENTRE MASS: %f\n",centre_mass);
-            struct point p = {.x = centre_x/centre_mass, .y= centre_y/centre_mass};
+            centre_x = centre_x/centre_mass; centre_y = centre_y/centre_mass;
+            struct point p = {.x = centre_x, .y= centre_y};
             newBody(nd, p, centre_mass,  total_charge); //Assign pseudoboy
             // free(pseudobody);
             printf("Pseudobody [%f,%f] at %i\n", centre_x,centre_y, nd->data);
@@ -353,25 +354,36 @@ bool queue_empty()
 */
 void levelorder(struct quad* n)
 {
-  enqueue(n);
-  
-  while (!queue_empty())
-  {
-    printf("%d\n",begin->data->data);
+    enqueue(n);
+    enqueue(NULL);
+    struct quad* curr = NULL;
+    while (!queue_empty())
+    {
     
-    if (begin->data->NE)
-      enqueue(begin->data->NE);
-    if (begin->data->SE)
-      enqueue(begin->data->SE);
-    if (begin->data->SW)
-      enqueue(begin->data->SW);
-    if (begin->data->NW)
-      enqueue(begin->data->NW);
+    curr = begin->data;
     dequeue();
-    
-  }
+    if(curr!=NULL){
+        
+        if (curr->NE)
+            enqueue(curr->NE);
+        if (curr->SE)
+            enqueue(curr->SE);
+        if (curr->SW)
+            enqueue(curr->SW);
+        if (curr->NW)
+            enqueue(curr->NW);
+        printf("%d ",curr->data);
+    }
+    else{
+        printf("\n");
+        if(!queue_empty()){
+            enqueue(NULL);
+        }
+    }
   
+    }
 }
+  
 
 /*
     Get the magnitude of the 2D vector
@@ -392,13 +404,27 @@ void difference(struct point* p1, struct point* p2, double *d){
 /*
     Get force summation
 */
-void force_summation(struct quad* nd, struct body* bodies, int* N_PARTICLES){
+void force_summation(struct quad* nd, struct body* bodies, struct point* Forces, int* N_PARTICLES){
     double d[2] = {0,0};
     double m;
     for(int i=0; i<*N_PARTICLES; i++){
         difference(&bodies[i].pos, &nd->b->pos, d);
         m = mag(d);
         printf("|d|:%f, [%f,%f]\n",m,d[0],d[1]);
+        printf("s/d = %f\n", nd->s/m);
+        if(nd->s/m<=5){
+            printf("True\n");
+            Forces[i].x = (bodies[i].charge * nd->b->charge)/(m*m*m)*d[0];
+            Forces[i].y = (bodies[i].charge * nd->b->charge)/(m*m*m)*d[1];
+            printf("TF_[%i] = [%f,%f] \n", i,Forces[i].x, Forces[i].y);  
+
+        } else
+        {
+            printf("False\n");
+            // levelorder()
+
+        }
+        
     }
 }
 
@@ -469,7 +495,7 @@ int main() {
     int S = 100;
     char x[2]={'x', 'y'};
     srand(seed);
-
+    struct point* Forces = malloc(sizeof(struct point)*N_PARTICLES);
     for (int i=0; i < N_PARTICLES; i++){
 
             double mass = 5 * ((double) rand() / (double) RAND_MAX ); // 1,5
@@ -478,7 +504,7 @@ int main() {
             .y = 100 * ((double) rand() / (double) RAND_MAX ) - 50};
 
             struct body b = {.mass = mass, .charge = charge, .pos = p };
-
+            Forces[i].x = 0; Forces[i].y = 0;
             bodies[i] = b;
             printf("%d: %c:[%f], %c:[%f] \n",i, x[0], bodies[i].pos.x, x[1], bodies[i].pos.y );
     
@@ -493,9 +519,9 @@ int main() {
     te = clock(); // End timer
     double t = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
     printf("Checking queue\n");
-    // levelorder(root);
+    levelorder(root);
     // display_tree(root);
-    force_summation(root,bodies, &N_PARTICLES);
+    force_summation(root,bodies, Forces, &N_PARTICLES);
     // check(root);
     char c;
     printf("Do you want to save the data? Y/n \n");
@@ -516,6 +542,7 @@ int main() {
     free(root->b); // As there will always be a pseudobody at 0
     deconstruct_tree(root);
     free(bodies);
+    free(Forces);
 
     printf("Released memory succesfuly\n");
     printf("Program took %f\n", t);
