@@ -176,7 +176,7 @@ int insert(struct quad* nd, struct body* b, int *index, int* track){
         nd->b = b;
         nd->data = *index; //Assign the number of the body from the Bodies array, this is for getting back with data where the body is stored as a leaf
         // printf("Pointer to %i\n", nd->data);
-        return 1; // Found so return 1 so we can exit the recursion
+        // return 1; // Found so return 1 so we can exit the recursion
     } 
     else{
     
@@ -200,6 +200,91 @@ int insert(struct quad* nd, struct body* b, int *index, int* track){
 }
 
 /*
+    Queue datastructure
+*/
+/* helper queue for levelorder */
+struct linkedList
+{
+  struct quad* data;
+  struct linkedList* next;
+  
+}; 
+ 
+struct linkedList* begin;
+struct linkedList* end;
+
+/*
+    Push element inside the end part of the queue by allocating new memory dynamically
+*/ 
+void enqueue(struct quad* nd)
+{
+    struct linkedList* temp = malloc(sizeof(struct linkedList));
+    temp->data = nd;
+    temp->next = NULL;
+    if(begin==NULL && end==NULL){
+        begin = end = temp;
+    }
+    end->next = temp;
+    end = temp;
+}
+ /*
+    Pop element from queue and free its memory
+ */
+void dequeue()
+{
+    struct linkedList* temp = begin;
+    if(begin==NULL){return;}
+    if(begin==end){
+        begin = NULL;
+        end = NULL;
+    }
+    else{
+        begin = begin->next;
+    }
+    free(temp);
+}
+ 
+bool queue_empty()
+{
+  return (begin==NULL && end==NULL);
+}
+/*
+    Level Order Traversal for force summation ( Breadth first traversal)
+*/
+void levelorder(struct quad* n)
+{
+    enqueue(n);
+    enqueue(NULL); // Extra NUll parameter for checking when the tree goes to the next level after enquing all children in one level.
+    struct quad* curr = NULL;
+    while (!queue_empty())
+    {
+    
+    curr = begin->data;
+    dequeue();
+    if(curr!=NULL){
+        
+        if (curr->NE)
+            enqueue(curr->NE);
+        if (curr->SE)
+            enqueue(curr->SE);
+        if (curr->SW)
+            enqueue(curr->SW);
+        if (curr->NW)
+            enqueue(curr->NW);
+        printf("%d ",curr->data);
+    }
+    else{
+        printf("\n");
+        if(!queue_empty()){
+            enqueue(NULL);
+        }
+    }
+  
+    }
+}
+
+
+/*
     Deconstruct quad tree (Postorder)
 */ 
 void sum(struct quad* root)
@@ -211,29 +296,11 @@ void sum(struct quad* root)
         sum(root->SW);
         sum(root->NW);
 
-        // printf("data is: %i\n", root->data);
+        if(root->b!=NULL){printf("data is: %i\n", root->data);}
+
 
     }
 }
-
-
-        // // free(root);
-        // int number = 0; // Number of particles
-        // double centre_x = 0; // x component of pseudobody
-        // double centre_y = 0; // y component of pseudobody
-        // double centre_mass = 0; // Mass of Pseudobody
-        // double total_charge = 0; // extra term since we have charges!!
-        
-        // centre_mass += bodies[i].mass;
-        // centre_x += ((bodies[i].mass)*(bodies[i].pos.x));
-        // centre_y += ((bodies[i].mass)*(bodies[i].pos.y));
-        // total_charge += bodies[i].charge;
-
-        // centre_x = centre_x/centre_mass;
-        // centre_y = centre_y/centre_mass;
-        // struct body pseudobody = {.mass = centre_mass, .pos = ((centre_x), (centre_y)), .charge = total_charge};
-        // nd->b = &pseudobody; //Assign pseudobody
-        // printf("Pseudobody [%d,%d] at %i\n", centre_x,centre_y, nd->data);
 
 
 /*
@@ -345,10 +412,10 @@ int main() {
     
     // display_tree(root);
     ts = clock();
-    sum(root);
+    levelorder(root);
     te = clock();
     double d2 = (double)(te-ts)/CLOCKS_PER_SEC; // Bottom-up tree construction time
-
+    sum(root);
     printf("Going up the tree took: %f\n", d2);
     // deconstruct the tree
     deconstruct_tree(root);
