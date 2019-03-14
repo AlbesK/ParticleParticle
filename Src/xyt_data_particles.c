@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include"bhHeaders.h"
 
 void xyt_data_particles(struct body* bodies, int* N_PARTICLES, double t){
     FILE * f; 

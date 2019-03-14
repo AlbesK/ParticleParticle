@@ -1,5 +1,5 @@
 #include<stdio.h>
-
+#include"bhHeaders.h"
 /*
     Construct tree (top down) by counting N particles in each node and checking if its a twig 
     (N>2) or a leaf (N=1). Empty nodes are ignored.

@@ -1,5 +1,5 @@
 #include<stdio.h>
-
+#include"bhHeaders.h"
 /*
     Construct quad tree from bottom-up by putting bodies inside it.
 */

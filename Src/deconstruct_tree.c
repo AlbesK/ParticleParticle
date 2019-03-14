@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include"bhHeaders.h"
 
 /*
     Deconstruct quad tree (Postorder)

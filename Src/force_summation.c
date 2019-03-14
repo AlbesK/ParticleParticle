@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<math.h>
+#include"bhHeaders.h"
 
 /*
     Get force summation

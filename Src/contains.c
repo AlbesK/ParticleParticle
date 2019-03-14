@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdbool.h>
+#include"bhHeaders.h"
 
 /*
     Check if the body is residing inside the node through its coordinates

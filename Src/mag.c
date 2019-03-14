@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include"bhHeaders.h"
 
 /*
     Get the magnitude of the 2D vector

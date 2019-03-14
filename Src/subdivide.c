@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include"bhHeaders.h"
 
 /*
     Subdivide node to 4 quadrants and assign memory dynamically through newNode() function

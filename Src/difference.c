@@ -1,6 +1,5 @@
 #include<stdio.h>
-#include"bhHeaders.h"
-
+#include "bhHeaders.h"
 /*
     Get Vector difference from points
 */

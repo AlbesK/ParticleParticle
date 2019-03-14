@@ -59,6 +59,7 @@ int main()
 
 
       double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //Dynamically allocate memory for Array-
+      double (*Velocity)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
       double *Mass = malloc(sizeof(double) * N_PARTICLES); //- for memory
       double *Charge = malloc(sizeof(double) * N_PARTICLES);
       double *V = malloc(sizeof(double) * N_PARTICLES); //- for Potentials
@@ -68,7 +69,7 @@ int main()
       printf("-----\n");
 
 
-      initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
+      initialiser(N_PARTICLES, N_DIMENSIONS, A, Velocity, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
       //-( will be charges in the future)
       printf("-----\n");
       
@@ -86,8 +87,32 @@ int main()
       //sd[i], duration = calculateSD(data);
       
       printf("Time elapsed is: %f (s)\n", duration); //To see the duration on the calculation model only
-
+      char c; // Boolean char to check for saving
+      printf("Do you want to save the data? Y/n \n");
+      scanf("%c", &c);
+      
+      if(c=='Y'){
+          double tstart, tend;
+          double dt;
+          printf("For what times?\n");
+          printf("t_start?\n");
+          scanf("%lf\n", &tstart);
+          printf("t_end?\n");
+          scanf("%lf\n", &tend);
+          printf("Timestep dt? \n");
+          scanf("%lf", &dt);
+          
+          printf("Calculating for timerange: [%f,%f]\n", tstart, tend);
+          double Time[2] = {tstart, tend};
+          printf("Saving data...\n");
+          leapfrog(&N_PARTICLES, &N_DIMENSIONS, Mass, Charge, A, Velocity, F, Time, &dt);
+          printf("Done\n");
+      } else
+      {
+          printf("Continuing\n");   
+      }
       free(A); //Free memory
+      free(Velocity);
       free(F);
       free(Mass);
       free(V);  

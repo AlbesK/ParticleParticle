@@ -1,5 +1,7 @@
 #include<stdio.h>
-
+#include<stdlib.h>
+#include<stdbool.h>
+#include"bhHeaders.h"
 /* 
     Allocates a new node and respectively fills data, coordinates and size of square for that node.
 */

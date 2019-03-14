@@ -1,5 +1,5 @@
 #include<stdio.h>
-
+#include "bhHeaders.h"
 /*
     Helper function for xy_tree.c to print data to csv file so it can be processed later
 */

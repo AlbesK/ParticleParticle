@@ -1,4 +1,6 @@
 #include<stdio.h>
+#include<stdlib.h>
+#include"bhHeaders.h"
 
 /*
     Assign new Pseudobody to node of quad tree
