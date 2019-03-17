@@ -4,101 +4,43 @@
 #include <cmath>
 #include <vector>
 
-//#include "Functions.h"
- 
+#include "Functions.h"
     
-
-    
-  
-    
-  
-//ios::sync_with_stdio(false);
-
-  //Object approach
-class Point {
-  public:
-  double x, y, z;
-  
-  void setX(double x){
-    this->x = x;
-  }
-  void setY(double y){
-    this->y = y;
-  }
-  void setZ(double z){
-    this->z = z;
-  }
-
-  ~Point(){};
-  
-};
-
-class Body: public Point {
-  public:
-  
-  double mass;   //Mass
-  double charge;  //Charge
-  
-  
-
-  Body(double m = 1.0, double c = -1.0)
-  { //Default Constructor
-    
-    this->mass = m;
-    this->charge = c;
-    std::cout <<"Body constructed\n";
-  }
-
-  ~Body(){std::cout <<"Body destructed\n";}; //Destructor
-
-
-};
-
-  
-
 int main()
 {
   // Particle Number and Dimensions
-  
+
   clock_t start, end;
+  char term;
   start = clock(); //start timer
 
-  int N_PARTICLES = 4; int N_DIMENSIONS = 3; int seed=1; 
+  int N_PARTICLES; int N_DIMENSIONS = 3; int seed=1;
 
-  
+  printf("How many particles?\n");
+  if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
+    printf("Failure: Not an integer. Try again\n");
+    exit(-1);
+  } 
+
+  printf("Calculating\n");
+  if (N_PARTICLES < 2) {
+    printf("Insufficent number of particles %i\n", N_PARTICLES);
+    exit(-1);
+  } 
+
+
   //Pointers and their initialization
-  
+
   std::vector<Body> *Bodies;
   Bodies = new std::vector<Body>(N_PARTICLES);
+  std::vector<Point> *Forces;
+  Forces = new std::vector<Point>(N_PARTICLES);
 
-
-  srand(seed); //Seed time for random value generation 
-
-  //Initialising the matrices
-  double rx, ry, rz;
-  double mass, charge;
-  
-
-  for(int i=0; i<N_PARTICLES; i++){
-     
-     mass = (5 * ((double) rand() / (double) RAND_MAX ));
-     charge = (10 * ((double) rand() / (double) RAND_MAX )-5);
-    
-    (*Bodies)[i] = Body(mass, charge);
-
-     (*Bodies)[i].setX((10 * ((double) rand() / (double) RAND_MAX )));
-     (*Bodies)[i].setY((10 * ((double) rand() / (double) RAND_MAX )));
-     (*Bodies)[i].setZ((10 * ((double) rand() / (double) RAND_MAX )));
-
-     std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << 
-     " " << (*Bodies)[i].z << std::endl;
-     std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
-     (*Bodies)[i].charge << std::endl;
-  }
-
-
+  initialiser(seed, N_PARTICLES, Bodies, Forces);
+  ppmodel(N_PARTICLES, Bodies, Forces);
   //Free Memory
-  delete  Bodies; 
+  delete  Bodies;
+  delete  Forces; 
   std::cout << "Pointers deleted succesfuly" << std::endl;
 
   end = clock(); //end timer

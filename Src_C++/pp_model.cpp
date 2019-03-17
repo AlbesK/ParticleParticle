@@ -4,67 +4,38 @@
 #include <cmath>
 #include "Functions.h"
 
-void ppmodel(int particles, int dimensions, double* V, double (*F)[dimensions], double (*A)[dimensions], double* Mass, double* Charge){
+void findDistance(class Point &x, class Point &y, double &distance, double *r)
+{
+    double tempx, tempy, tempz;
+    tempx = (x.x - y.x);
+    tempx = tempx * tempx; 
+    tempy = (x.y - y.y);
+    tempy = tempy * tempy;
+    tempz = (x.z - y.z);
+    tempz = tempz * tempz;
+    r[0] = tempx; r[1] = tempy; r[2] = tempz;
+    distance = tempx + tempy + tempz;
+    distance = sqrt(distance);
 
-double Total_Force[dimensions];
-double Total_Energy = 0.0;
+}
+
+void ppmodel(int particles, std::vector<Body> *Bodies, std::vector<Point> *Forces){
+
+double Total_Force[3];
+double Total_Energy = 0;
+double r[3] = {0,0,0};
+double distance = 0;
 
 for(int i = 0; i < particles; i++){
     for(int j = i+1; j < particles; j++){
         
-        double difference[dimensions]; //difference array for vector components e.g. (x2-x1), (y2-y1) etc   
-        double r = 0.0; //r storage of distance for N_DIMENSIONS vectors
-
-        /*Find the distance between particle i and i+1,i+2,...,i+n etc 
-        then increment i and find the distance for i+1 with i+2,i+3,...,
-        i+n*/
-        
-        for(int n = 0; n < dimensions; n++){
-            
-            /* finding the (x2-x1)^2 components for the total vector distance */
-            difference[n] = (A[i][n]-A[j][n])*(A[i][n]-A[j][n]); 
-            r += difference[n]; //Add the components
-             
-        }
-
-        double sqr = sqrt(r); //Defining a value for the square root for efficiency and calculating the total distance r in sqr
-
-        V[i] += Charge[j] * (1.0/sqr);  //Calculating Potentials using pointers
-        V[j] += Charge[i] * (1.0/sqr);
-
-        for(int n = 0; n < dimensions; n++){
-
-            F[i][n] += (Charge[i] * Charge[j])/(sqr*sqr*sqr)*difference[n];
-            F[j][n] -= F[i][n];  //F[j] += -F[i];
-            
-        }
-
-        
-        
-
-        }
-
-	for(int n = 0; n < dimensions; n++){
-    
-    Total_Force[n] += F[i][n];
+        findDistance((*Bodies)[i], (*Bodies)[j], distance, r);
+        printf("Distance %f r[%f, %f, %f] \n", distance, r[0], r[1], r[2]);
     
     }
-    
-    Total_Energy += V[i];
-    
-}
-printf("The total force on this system is: [ ");
-for(int n=0; n< dimensions; n++){
-printf( "%f ", Total_Force[n]);
-}
-printf("]\n");
-printf("The total energy of this system is: %f\n", Total_Energy);
-
-
-
 }
 
-    
+}   
     
     
 

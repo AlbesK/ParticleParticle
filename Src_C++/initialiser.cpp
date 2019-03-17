@@ -2,27 +2,42 @@
 later including charge and masses*/    
 
 #include <iostream>
-#include <cstdlib>
+#include <cmath>
+// #include <cstdlib>
 //#include <time.h>
 
 #include "Functions.h"
 
 
-void initialiser(int particles, int dimensions, double (*A)[dimensions], double* Mass, double* Charge, int seed ){ // i for particles, j for dimensions
+void initialiser(int seed, int N_PARTICLES, std::vector<Body> *Bodies, std::vector<Point> *Forces){ 
 
 /*Loop through the array and initialise the position with random values between */ 
 
 srand(seed); //Seed time for random value generation 
 
-for (int i=0; i < particles; i++){
-  for(int j=0; j < dimensions; j++){
-    A[i][j] = 10 * ( (double) rand() / (double) RAND_MAX );
+  //Initialising the matrices
+  double rx, ry, rz;
+  double mass, charge;
+
+
+  for(int i=0; i<N_PARTICLES; i++){
+    
+    mass = (5 * ((double) rand() / (double) RAND_MAX ));
+    charge = (10 * ((double) rand() / (double) RAND_MAX )-5);
+  
+    (*Bodies)[i] = Body(mass, charge);
+
+    (*Bodies)[i].setX((10 * ((double) rand() / (double) RAND_MAX )));
+    (*Bodies)[i].setY((10 * ((double) rand() / (double) RAND_MAX )));
+    (*Bodies)[i].setZ((10 * ((double) rand() / (double) RAND_MAX )));
+
+    (*Forces)[i].setX(0);
+    (*Forces)[i].setY(0);
+    (*Forces)[i].setZ(0);
+
+    std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << 
+    " " << (*Bodies)[i].z << std::endl;
+    std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
+    (*Bodies)[i].charge << std::endl;
   }
-}
-
-for (int i = 0; i < particles; i++){
-    Mass[i] = 5 * ((double) rand() / (double) RAND_MAX );
-    Charge[i] = 10 * ((double) rand() / (double) RAND_MAX ) - 5;
-}
-
 }

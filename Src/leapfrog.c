@@ -19,9 +19,9 @@ double (*F)[*dimensions], double* Time, double* dt){
         fprintf(f,"\n");
     }
     
-    for(int i=0; i<total_steps; i++){
+    // for(int i=0; i<total_steps; i++){
 
-    }
+    // }
 
     fclose(f);
 }
