@@ -32,10 +32,9 @@ int main()
 
   //for(int i=1; i<l; i++){ //New Loop to save the data to be plotted
   
-    N_PARTICLES = pow(4,i);
 
     
-       Commenting for now for automatic input for the plot
+  //Commenting for now for automatic input for the plot
       printf("How many particles?\n");
       if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
         printf("Failure: Not an integer. Try again\n");
@@ -49,7 +48,7 @@ int main()
       } 
 
       //Seed input to check values with trial of OpenMP
-      //int seed = 1;
+      int seed = 1;
       
       printf("Seed value?\n");
       if (scanf("%d%c", &seed, &term) != 2 || term != '\n') {
@@ -60,6 +59,7 @@ int main()
 
 
       double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //Dynamically allocate memory for Array-
+      double (*Velocity)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
       double *Mass = malloc(sizeof(double) * N_PARTICLES); //- for memory
       double *Charge = malloc(sizeof(double) * N_PARTICLES);
       double *V = malloc(sizeof(double) * N_PARTICLES); //- for Potentials
@@ -69,7 +69,7 @@ int main()
       printf("-----\n");
 
 
-      initialiser(N_PARTICLES, N_DIMENSIONS, A, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
+      initialiser(N_PARTICLES, N_DIMENSIONS, A, Velocity, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
       //-( will be charges in the future)
       printf("-----\n");
       
@@ -77,7 +77,7 @@ int main()
       
       //for(int j=0; j<4; j++){
         start = clock(); //start timer
-        ppmodel(N_PARTICLES, N_DIMENSIONS, V, F, A, Mass, Charge); //Model
+        ppmodel(&N_PARTICLES, &N_DIMENSIONS, V, F, A, Mass, Charge); //Model
         end = clock(); //end timer
         duration = (double)(end-start)/CLOCKS_PER_SEC;
         //data[j] = duration;
@@ -87,8 +87,32 @@ int main()
       //sd[i], duration = calculateSD(data);
       
       printf("Time elapsed is: %f (s)\n", duration); //To see the duration on the calculation model only
-
+      char c; // Boolean char to check for saving
+      printf("Do you want to save the data? Y/n \n");
+      scanf("%c", &c);
+      
+      if(c=='Y'){
+          double tstart, tend;
+          double dt;
+          printf("For what times?\n");
+          printf("t_start?\n");
+          scanf("%lf\n", &tstart);
+          printf("t_end?\n");
+          scanf("%lf\n", &tend);
+          printf("Timestep dt? \n");
+          scanf("%lf", &dt);
+          
+          printf("Calculating for timerange: [%f,%f]\n", tstart, tend);
+          double Time[2] = {tstart, tend};
+          printf("Saving data...\n");
+          leapfrog(&N_PARTICLES, &N_DIMENSIONS, Mass, Charge, A, Velocity, F, Time, &dt);
+          printf("Done\n");
+      } else
+      {
+          printf("Continuing\n");   
+      }
       free(A); //Free memory
+      free(Velocity);
       free(F);
       free(Mass);
       free(V);  
@@ -101,10 +125,10 @@ int main()
     // N[i]=N_PARTICLES;
     // Time[i]=duration;
 
-  }
+  //}
   // te = clock();
   // double d = (double)(te-ts)/CLOCKS_PER_SEC;
-  printf("Program took %f\n", d);
+  printf("Program took %f\n", duration);
   //type_Data(N, Time, l, sd);
   return 0;
 }

@@ -1,8 +1,8 @@
 # files needed to be compiled
-SRC = initialiser.c pp_model.c main.c free_array.c
+SRC = initialiser.c pp_model.c main.c free_array.c leapfrog.c
 
 # compilation options
-CC = gcc
+CC = gcc -g
 CFLAGS = --std=c99
 LN = -lm
 
@@ -25,3 +25,4 @@ main.o :  main.c initialiser.o pp_model.o free_array.o Functions.h
 initialiser.o : initialiser.c Functions.h
 pp_model.o : pp_model.c Functions.h
 free_array.o : free_array.c Functions.h
+leapfrog.o : Functions.h

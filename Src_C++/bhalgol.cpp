@@ -2,6 +2,7 @@
 #include <cmath>
 #include <ctime>
 #include <vector>
+#define COUNT 12
 
   //Object approach
 class Point {
@@ -12,7 +13,7 @@ class Point {
   Point(double x, double y){this->x=x; this->y=y;}
 
   ~Point(){};
-  
+   
 };
 
 class Body {
@@ -45,6 +46,7 @@ class Quad {
     Point r; //Center 
     double s; //Size
     int data; //Key data
+    int capacity=1; //Capacity for the node
 
     Body *b;
     
@@ -59,7 +61,7 @@ class Quad {
     Quad() 
     { 
         this->r = Point();
-        this->s = 11;
+        this->s = 110;
         this->b = NULL;
         this->NE  = NULL; 
         this->SE = NULL; 
@@ -79,7 +81,7 @@ class Quad {
     } 
 
     ~Quad(){}//std::cout << "Class Destructed\n";} 
-    void insert(Body*); 
+    void insert(Body*, int index); 
     Body* search(Point); 
     bool inBoundary(Point); 
 
@@ -87,7 +89,7 @@ class Quad {
 };
 
 // Insert a body into the quadtree 
-void Quad::insert(Body *body) 
+void Quad::insert(Body *body, int index) 
 { 
     if (body == NULL) 
         return; 
@@ -101,27 +103,33 @@ void Quad::insert(Body *body)
     if (abs((r.x+s/2) - (r.x-s/2)) <= 1 && 
         abs((r.y+s/2) - (r.y-s/2)) <= 1) 
     { 
-        if (b == NULL) 
-            b = body; 
+    if (b == NULL) 
+        b = body; 
+        this->data = index;
         return; 
     } 
   
-    if (body->pos.x < r.x) 
+    if (body->pos.x < this->r.x) 
     { 
         // Indicates NW 
         if (body->pos.y > r.y) 
         { 
-            if (NW == NULL) 
-                NW = new Quad(Point(r.x-s/4, r.y+s/4), s/2); 
-            NW->insert(body); 
+            if (this->NW == NULL){ 
+                this->NW = new Quad(Point(r.x-s/4, r.y+s/4), s/2);
+            
+            }
+            this->NW->insert(body, index); 
         } 
   
         // Indicates SW 
         else
         { 
-            if (SW == NULL) 
-                SW = new Quad(Point(r.x-s/4, r.y-s/4), s/2); 
-            SW->insert(body); 
+            if (SW == NULL){ 
+                SW = new Quad(Point(r.x-s/4, r.y-s/4), s/2);
+
+            } 
+            SW->insert(body, index); 
+            
         } 
     } 
     else
@@ -129,17 +137,21 @@ void Quad::insert(Body *body)
         // Indicates NE 
         if (body->pos.y > r.y) 
         { 
-            if (NE == NULL) 
+            if (NE == NULL){ 
                 NE = new Quad(Point(r.x+s/4, r.y+s/4), s/2);
-            NE->insert(body); 
+            }
+            NE->insert(body, index); 
+            
         } 
   
         // Indicates SE 
         else
         { 
-            if (SE == NULL) 
-                SE = new Quad(Point(r.x+s/4, r.y-s/4), s/2); 
-            SE->insert(body); 
+            if (SE == NULL){ 
+                SE = new Quad(Point(r.x+s/4, r.y-s/4), s/2);
+                
+            } 
+            SE->insert(body, index); 
         } 
     } 
 } 
@@ -205,6 +217,39 @@ bool Quad::inBoundary(Point p)
             p.y > this->r.y-this->s/2 ); 
 }
 
+
+//Deallocate memory for all nodes:  
+void destroy(Quad* root)
+{
+    if(root != NULL)
+    {
+        
+        destroy(root->NE);
+        destroy(root->SE);
+        destroy(root->SW);
+        destroy(root->NW);
+
+        delete root;
+    }
+}
+
+int type_Data(int* N, double* T, int si){
+  
+  FILE * f; 
+  f = fopen("/home/albes/Desktop/log.txt", "w"); /* open the file for writing*/
+
+  /* write 10 lines of text into the file stream*/    
+  fprintf(f, "N_PARTICLES,TIME\n");
+
+  for(int i = 0; i < si;i++){
+      fprintf (f, "%d,%f\n", N[i], T[i]);
+  }
+
+  /* close the file*/  
+  fclose (f);
+  return 0;
+}
+
 /*
     Recursively display tree or subtree
 */
@@ -212,17 +257,18 @@ void display_tree(Quad *nd)
 {
     if (nd == NULL)
         return;
-    /* display node data */
-    printf("Quad Node at <%f, %f> Size [%f]\n", nd->r.x, nd->r.y, nd->s);
+    /* display quad data */
+    printf(" %*c(%d) \n %*c[%f, %f] \n %*c[%f]\n\n",50, ' ', nd->data, 42,' ', nd->r.x, nd->r.y, 47, ' ', nd->s);
+    
     if(nd->NE != NULL)
-        printf("(NE:%d)  ",nd->NE->data);
+        printf("%*c|NE:%d|  ",34,' ',nd->NE->data);
     if(nd->SE != NULL)
-        printf("(SE:%d)  ",nd->SE->data);
+        printf("|SE:%d|  ",nd->SE->data);
     if(nd->SW != NULL)
-        printf("(SW:%d)  ",nd->SW->data);
+        printf("|SW:%d|  ",nd->SW->data);
     if(nd->NW != NULL)
-        printf("(NW:%d)",nd->NW->data);
-    printf("\n");
+        printf("|NW:%d|",nd->NW->data);
+    printf("\n\n");
  
     display_tree(nd->NE);
     display_tree(nd->SE);
@@ -230,35 +276,26 @@ void display_tree(Quad *nd)
     display_tree(nd->NW);
 }
 
-//Deallocate memory for all nodes:  
-void dispose(Quad* root)
-{
-    if(root != NULL)
-    {
-        
-        dispose(root->NE);
-        dispose(root->SE);
-        dispose(root->SW);
-        dispose(root->NW);
-
-        
-        free(root);
-    }
-}
-
-
 
 int main()
 {
     // Particle Number and Dimensions
 
     clock_t start, end;
-    start = clock(); //start timer
+   
 
     int N_PARTICLES; int N_DIMENSIONS = 2; int seed=1; 
+    //New code for file writting
+    // int si = 9;
+    // int N[si]; double T[si];
+    // int type_Data(int*, double*, int);
 
+    //for(int i=0; i<si; i++){
     printf("How many particles?\n");
     scanf("%d", &N_PARTICLES);
+    
+    //N_PARTICLES = pow(10,i);
+    
     //Pointers and their initialization
 
     std::vector<Body> *Bodies;
@@ -271,35 +308,43 @@ int main()
     double rx, ry;
     double mass, charge;
 
-
     for(int i=0; i<N_PARTICLES; i++){
         
     mass = (5 * ((double) rand() / (double) RAND_MAX ));
     charge = (10 * ((double) rand() / (double) RAND_MAX )-5);
 
 
-    (*Bodies)[i] = Body(mass, charge, Point((10 * ((double) rand() / (double) RAND_MAX )-5), (10 * ((double) rand() / (double) RAND_MAX )-5)));
+    (*Bodies)[i] = Body(mass, charge, Point((100 * ((double) rand() / (double) RAND_MAX )-50), (100 * ((double) rand() / (double) RAND_MAX )-50)));
 
     //std::cout << "Body position is: [" << (*Bodies)[i].pos.x << "] [" <<  (*Bodies)[i].pos.y << "] " << std::endl;
     //std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
     //(*Bodies)[i].charge << std::endl;
     }
 
-    Quad root(Point(0, 0), 11);
+    Quad* root = new Quad();
 
+    start = clock();
     for(int i=0; i<N_PARTICLES; i++){
-        root.insert(&(*Bodies)[i]);
+        root->insert(&(*Bodies)[i], i+1);
     } 
+    end = clock(); //end timer
 
-    //display_tree(&root);
-    //dispose(&root);
+    //print_tree(root,0);
+
+    display_tree(root);
+    std::cout << "Body is at point: " << root->search((*Bodies)[1].pos) << std::endl;
     //Free Memory
-    delete  Bodies; 
+    delete Bodies; 
+    destroy(root);
     
     std::cout << "Pointers deleted succesfuly" << std::endl;
 
-    end = clock(); //end timer
     double duration = (double)(end-start)/CLOCKS_PER_SEC;
     printf("Time elapsed is: %f (s)\n", duration);
+    //N[i]=N_PARTICLES;
+    //T[i]=duration;
+    //}
+    //type_Data(N, T, si);
 
 }
+

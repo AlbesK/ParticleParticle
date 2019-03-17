@@ -8,7 +8,7 @@ later including charge and masses*/
 #include "Functions.h"
 
 
-void initialiser(int particles, int dimensions, double (*A)[dimensions], double* Mass, double* Charge, int seed ){ // i for particles, j for dimensions
+void initialiser(int particles, int dimensions, double (*A)[dimensions], double (*Vel)[dimensions], double* Mass, double* Charge, int seed ){ // i for particles, j for dimensions
 
 /*Loop through the array and initialise the position with random values between */ 
 
@@ -16,7 +16,8 @@ srand(seed); //Seed time for random value generation
 
 for (int i=0; i < particles; i++){
   for(int j=0; j < dimensions; j++){
-    A[i][j] = 20 *  (double) rand() / (double) RAND_MAX -10 ; //Random values between -10, 10
+    A[i][j] = 100 *  (double) rand() / (double) RAND_MAX -50 ; //Random values between -100, 100
+    Vel[i][j] = 2 * (double) rand() / (double) RAND_MAX -1;  // Random values between -1, 1
   }
 }
 
