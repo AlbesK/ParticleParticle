@@ -4,7 +4,7 @@
 //Object approach
 class Point {
   public:
-  double x, y, z;
+  double x, y; //, z;
   
   void setX(double x){
     this->x = x;
@@ -12,9 +12,9 @@ class Point {
   void setY(double y){
     this->y = y;
   }
-  void setZ(double z){
-    this->z = z;
-  }
+  // void setZ(double z){
+  //   this->z = z;
+  // }
 
   ~Point(){};
   
