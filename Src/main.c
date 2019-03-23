@@ -12,144 +12,91 @@ int main()
   clock_t start, end;
   char term;
   clock_t ts, te;
-  int l=0;
-  //New code for writing to output file:
-  //printf("The power with base 4?\n");
-  //scanf("%d", &l); 
-  
 
-  // int N[l-1]; N[0]=0; 
-  // double Time[l-1]; Time[0]=0;
-  // int type_Data(int*, double*, int length, double* sd);
-  // double calculateSD(double data[]);
-  
-  // int reset(int, int dimensions, double*, double (*F)[dimensions]);
-  // double sd[l-1]; sd[0]=0;
-  //end of new code for file writing
-  // double data[4];
-  // ts = clock();
-
-
-  //for(int i=1; i<l; i++){ //New Loop to save the data to be plotted
-  
-
-    
   //Commenting for now for automatic input for the plot
-      printf("How many particles?\n");
-      if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
-        printf("Failure: Not an integer. Try again\n");
-        exit(-1);
-      } 
+  printf("How many particles?\n");
+  if (scanf("%d%c", &N_PARTICLES, &term) != 2 || term != '\n') {//Stack overflow bit https://stackoverflow.com/questions/4072190/check-if-input-is-integer-type-in-c
+    printf("Failure: Not an integer. Try again\n");
+    exit(-1);
+  } 
 
-      printf("Calculating\n");
-      if (N_PARTICLES < 2) {
-        printf("Insufficent number of particles %i\n", N_PARTICLES);
-        exit(-1);
-      } 
+  printf("Calculating\n");
+  if (N_PARTICLES < 2) {
+    printf("Insufficent number of particles %i\n", N_PARTICLES);
+    exit(-1);
+  } 
 
-      //Seed input to check values with trial of OpenMP
-      int seed = 1;
+  //Seed input to check values with trial of OpenMP
+  int seed = 1;
+  
+  printf("Seed value?\n");
+  if (scanf("%d%c", &seed, &term) != 2 || term != '\n') {
+    printf("Failure: Not an integer. Try again\n");
+    exit(-1);
+  } 
+
+
+
+  double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //Dynamically allocate memory for Array-
+  double (*Velocity)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
+  double *Mass = malloc(sizeof(double) * N_PARTICLES); //- for memory
+  double *Charge = malloc(sizeof(double) * N_PARTICLES);
+  double *V = malloc(sizeof(double) * N_PARTICLES); //- for Potentials
+  double (*F)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //- for Forces
+
+
+  printf("-----\n");
+
+  initialiser(N_PARTICLES, N_DIMENSIONS, A, Velocity, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
+  //-( will be charges in the future)
+  printf("-----\n");
+  
+  double duration;
+  
+
+  start = clock(); //start timer
+  ppmodel(&N_PARTICLES, &N_DIMENSIONS, V, F, A, Mass, Charge); //Model
+  end = clock(); //end timer
+  duration = (double)(end-start)/CLOCKS_PER_SEC;  
+  
+  printf("Time elapsed is: %f (s)\n", duration); //To see the duration on the calculation model only
+  char c; // Boolean char to check for saving
+  printf("Do you want to save the data? Y/n \n");
+  scanf("%c", &c);
       
-      printf("Seed value?\n");
-      if (scanf("%d%c", &seed, &term) != 2 || term != '\n') {
-        printf("Failure: Not an integer. Try again\n");
-        exit(-1);
-      } 
-
-
-
-      double (*A)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //Dynamically allocate memory for Array-
-      double (*Velocity)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS]));
-      double *Mass = malloc(sizeof(double) * N_PARTICLES); //- for memory
-      double *Charge = malloc(sizeof(double) * N_PARTICLES);
-      double *V = malloc(sizeof(double) * N_PARTICLES); //- for Potentials
-      double (*F)[N_DIMENSIONS] = malloc(sizeof(double[N_PARTICLES][N_DIMENSIONS])); //- for Forces
-
-
-      printf("-----\n");
-
-
-      initialiser(N_PARTICLES, N_DIMENSIONS, A, Velocity, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
-      //-( will be charges in the future)
-      printf("-----\n");
-      
-      double duration;
-      
-      //for(int j=0; j<4; j++){
-        start = clock(); //start timer
-        ppmodel(&N_PARTICLES, &N_DIMENSIONS, V, F, A, Mass, Charge); //Model
-        end = clock(); //end timer
-        duration = (double)(end-start)/CLOCKS_PER_SEC;
-        //data[j] = duration;
-        //reset(N_PARTICLES, N_DIMENSIONS, V, F);
-      // }
-      
-      //sd[i], duration = calculateSD(data);
-      
-      printf("Time elapsed is: %f (s)\n", duration); //To see the duration on the calculation model only
-      char c; // Boolean char to check for saving
-      printf("Do you want to save the data? Y/n \n");
-      scanf("%c", &c);
-      
-      if(c=='Y'){
-          double tstart, tend;
-          double dt;
-          printf("For what times?\n");
-          printf("t_start?\n");
-          scanf("%lf\n", &tstart);
-          printf("t_end?\n");
-          scanf("%lf\n", &tend);
-          printf("Timestep dt? \n");
-          scanf("%lf", &dt);
-          
-          printf("Calculating for timerange: [%f,%f]\n", tstart, tend);
-          double Time[2] = {tstart, tend};
-          printf("Saving data...\n");
-          leapfrog(&N_PARTICLES, &N_DIMENSIONS, Mass, Charge, A, Velocity, F, Time, &dt);
-          printf("Done\n");
-      } else
-      {
-          printf("Continuing\n");   
-      }
-      free(A); //Free memory
-      free(Velocity);
-      free(F);
-      free(Mass);
-      free(V);  
-      free(Charge);
-      
-      
-      printf("Released the memory succesfully\n");  
+  if(c=='Y'){
+    double tstart, tend;
+    double dt;
+    printf("For what times?\n");
+    printf("t_start?\n");
+    scanf("%lf\n", &tstart);
+    printf("t_end?\n");
+    scanf("%lf\n", &tend);
+    printf("Timestep dt? \n");
+    scanf("%lf", &dt);
     
-    
-    // N[i]=N_PARTICLES;
-    // Time[i]=duration;
+    printf("Calculating for timerange: [%f,%f]\n", tstart, tend);
+    double Time[2] = {tstart, tend};
+    printf("Saving data...\n");
+    // leapfrog(&N_PARTICLES, &N_DIMENSIONS, Mass, Charge, A, Velocity, F, Time, &dt);
+    printf("Done\n");
+  } else
+  {
+      printf("Continuing\n");   
+  }
+  free(A); //Free memory
+  free(Velocity);
+  free(F);
+  free(Mass);
+  free(V);  
+  free(Charge);
+  
+  
+  printf("Released the memory succesfully\n");  
 
-  //}
-  // te = clock();
-  // double d = (double)(te-ts)/CLOCKS_PER_SEC;
   printf("Program took %f\n", duration);
-  //type_Data(N, Time, l, sd);
+
   return 0;
-}
-
-double calculateSD(double data[])
-{
-    double sum = 0.0, mean, standardDeviation = 0.0;
-
-    int i;
-
-    for(i=0; i<4; ++i)
-    {
-        sum += data[i];
-    }
-
-    mean = sum/4;
-
-    for(i=0; i<4; ++i)
-        standardDeviation += pow(data[i] - mean, 2);
-
-    return sqrt(standardDeviation/3), mean;
 }
 
 int type_Data(int* N, double* Time, int length, double* sd){
@@ -181,5 +128,5 @@ int reset(int particles, int dimensions, double* V, double (*F)[dimensions]){
     }
   }
 
-return 0;
+  return 0;
 }
