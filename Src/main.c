@@ -8,7 +8,7 @@ int main()
 {
   ///Number of Particles & Number of Dimensions the particles reside in
   int N_PARTICLES;
-  int N_DIMENSIONS = 3;
+  int N_DIMENSIONS = 2;
   clock_t start, end;
   char term;
   clock_t ts, te;
@@ -47,7 +47,7 @@ int main()
 
   printf("-----\n");
 
-  initialiser(N_PARTICLES, N_DIMENSIONS, A, Velocity, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
+  initialiser(N_PARTICLES, N_DIMENSIONS, A, F, Velocity, Mass, Charge, seed); //Initialise the Array A of dimensions per particle and their respective Masses- 
   //-( will be charges in the future)
   printf("-----\n");
   

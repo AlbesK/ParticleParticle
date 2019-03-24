@@ -25,18 +25,16 @@ class Body: public Point {
   
   double mass;   //Mass
   double charge;  //Charge
-  
-  
 
   Body(double m = 1.0, double c = -1.0)
   { //Default Constructor
     
     this->mass = m;
     this->charge = c;
-    std::cout <<"Body constructed\n";
+    // std::cout <<"Body constructed\n";
   }
 
-  ~Body(){std::cout <<"Body destructed\n";}; //Destructor
+  ~Body(){}; //Destructor
 
 
 };
