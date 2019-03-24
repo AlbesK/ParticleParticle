@@ -6,13 +6,32 @@
 
 #include "Functions.h"
     
+/*
+    Function to save X, Y coordinates of bodies and Time taken to run build the tree
+*/
+void particle_data(std::vector<Body> *bodies, std::vector<Point> *Forces, int* N_PARTICLES, double t){
+    FILE * f; 
+    f = fopen("/home/albes/Desktop/mcpp.txt", "w"); /* open the file for writing*/
+    printf("Writting...\n");
+    /* write 10 lines of text into the file stream*/    
+    fprintf(f, "N,X,Y,M,C,Fx,Fy,TBuilt\n");
+
+    for(int i = 0; i < *N_PARTICLES;i++){
+        fprintf (f, "%d,%f,%f,%f,%f,%f,%f\n", i, (*bodies)[i].x, (*bodies)[i].y, (*bodies)[i].mass, (*bodies)[i].charge, (*Forces)[i].x, (*Forces)[i].y);
+    }
+    fprintf(f,",,,,,,,%f",t);
+
+    /* close the file*/  
+    fclose (f);
+    printf("Closed file.\n");
+}
+
 int main()
 {
   // Particle Number and Dimensions
 
   clock_t start, end;
   char term;
-  start = clock(); //start timer
 
   int N_PARTICLES; int N_DIMENSIONS = 3; int seed=1;
 
@@ -37,14 +56,31 @@ int main()
   Forces = new std::vector<Point>(N_PARTICLES);
 
   initialiser(seed, N_PARTICLES, Bodies, Forces);
+  
+  start = clock(); //start timer
   ppmodel(N_PARTICLES, Bodies, Forces);
+  end = clock(); //end timer
+  double duration = (double)(end-start)/CLOCKS_PER_SEC;
+
+  char c;
+  printf("Do you want to save the data? Y/n \n");
+  scanf("%c", &c);
+  
+  if(c=='Y'){
+      printf("Saving bodies data...\n");
+      particle_data(Bodies, Forces, &N_PARTICLES, duration);
+      printf("Done\n");
+  } else
+  {
+      printf("Continuing\n");   
+  }
+
   //Free Memory
   delete  Bodies;
   delete  Forces; 
   std::cout << "Pointers deleted succesfuly" << std::endl;
 
-  end = clock(); //end timer
-  double duration = (double)(end-start)/CLOCKS_PER_SEC;
   printf("Time elapsed is: %f (s)\n", duration);
 
 }
+
