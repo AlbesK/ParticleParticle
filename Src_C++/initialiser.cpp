@@ -8,7 +8,6 @@ later including charge and masses*/
 
 #include "Functions.h"
 
-
 void initialiser(int seed, int N_PARTICLES, std::vector<Body> *Bodies, std::vector<Point> *Forces){ 
 
 /*Loop through the array and initialise the position with random values between */ 
@@ -35,9 +34,9 @@ srand(seed); //Seed time for random value generation
     (*Forces)[i].setY(0);
     //(*Forces)[i].setZ(0);
 
-    std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << std::endl;
+    // std::cout << "Body position is: " << (*Bodies)[i].x << " " <<  (*Bodies)[i].y << std::endl;
     //" " << (*Bodies)[i].z << std::endl;
-    std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
-    (*Bodies)[i].charge << std::endl;
+    // std::cout << "Mass is: " << (*Bodies)[i].mass <<" Charge is: "<< 
+    // (*Bodies)[i].charge << std::endl;
   }
 }
