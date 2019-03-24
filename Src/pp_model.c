@@ -9,9 +9,9 @@ void ppmodel(int* particles, int* dimensions, double* V, double (*F)[*dimensions
 double Total_Force[*dimensions]; Total_Force[0]=0; Total_Force[1]=0; Total_Force[2]=0;
 double Total_Energy = 0;
 double difference[*dimensions]; //difference array for vector components e.g. (x2-x1), (y2-y1) etc   
-double r = 0.0; //r storage of distance for N_DIMENSIONS vectors
-double sqr = 0; //square root storage
-
+double r = 0.0; // r storage of distance for N_DIMENSIONS vectors
+double sqr = 0; // square root storage
+      
 for(int i = 0; i < *particles; i++){
     for(int j = i+1; j < *particles; j++){
         

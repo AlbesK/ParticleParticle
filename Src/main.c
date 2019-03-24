@@ -130,3 +130,4 @@ int reset(int particles, int dimensions, double* V, double (*F)[dimensions]){
 
   return 0;
 }
+ 
