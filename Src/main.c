@@ -8,7 +8,7 @@ int main()
 {
   ///Number of Particles & Number of Dimensions the particles reside in
   int N_PARTICLES;
-  int N_DIMENSIONS = 2;
+  int N_DIMENSIONS = 2; // 2D
   clock_t start, end;
   char term;
   clock_t ts, te;

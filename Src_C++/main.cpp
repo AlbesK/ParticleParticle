@@ -9,15 +9,15 @@
 /*
     Function to save X, Y coordinates of bodies and Time taken to run build the tree
 */
-void particle_data(std::vector<Body> *bodies, std::vector<Point> *Forces, int* N_PARTICLES, double t){
+void particle_data(std::vector<Body> *bodies, std::vector<Point> *Forces, std::vector<Point> *Potentials, int* N_PARTICLES, double t){
     FILE * f; 
     f = fopen("/home/albes/Desktop/mcpp.txt", "w"); /* open the file for writing*/
     printf("Writting...\n");
     /* write 10 lines of text into the file stream*/    
-    fprintf(f, "N,X,Y,M,C,Fx,Fy,TBuilt\n");
+    fprintf(f, "N,X,Y,M,C,Fx,Fy,Vx,Vy,TBuilt\n");
 
     for(int i = 0; i < *N_PARTICLES;i++){
-        fprintf (f, "%d,%f,%f,%f,%f,%f,%f\n", i, (*bodies)[i].x, (*bodies)[i].y, (*bodies)[i].mass, (*bodies)[i].charge, (*Forces)[i].x, (*Forces)[i].y);
+        fprintf (f, "%d,%f,%f,%f,%f,%f,%f,%f,%f\n", i, (*bodies)[i].x, (*bodies)[i].y, (*bodies)[i].mass, (*bodies)[i].charge, (*Forces)[i].x, (*Forces)[i].y, (*Potentials)[i].x, (*Potentials)[i].y);
     }
     fprintf(f,",,,,,,,%f",t);
 
@@ -54,11 +54,13 @@ int main()
   Bodies = new std::vector<Body>(N_PARTICLES);
   std::vector<Point> *Forces;
   Forces = new std::vector<Point>(N_PARTICLES);
+  std::vector<Point> *Potentials;
+  Potentials = new std::vector<Point>(N_PARTICLES);
 
   initialiser(seed, N_PARTICLES, Bodies, Forces);
   
   start = clock(); //start timer
-  ppmodel(N_PARTICLES, Bodies, Forces);
+  ppmodel(N_PARTICLES, Bodies, Forces, Potentials);
   end = clock(); //end timer
   double duration = (double)(end-start)/CLOCKS_PER_SEC;
 
@@ -68,7 +70,7 @@ int main()
   
   if(c=='Y'){
       printf("Saving bodies data...\n");
-      particle_data(Bodies, Forces, &N_PARTICLES, duration);
+      particle_data(Bodies, Forces, Potentials, &N_PARTICLES, duration);
       printf("Done\n");
   } else
   {
@@ -78,6 +80,8 @@ int main()
   //Free Memory
   delete  Bodies;
   delete  Forces; 
+  delete  Potentials;
+
   std::cout << "Pointers deleted succesfuly" << std::endl;
 
   printf("Time elapsed is: %f (s)\n", duration);

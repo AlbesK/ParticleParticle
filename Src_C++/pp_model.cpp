@@ -20,24 +20,27 @@ void findDistance(class Point &x, class Point &y, double &distance, double *r)
 
 }
 
-void ppmodel(int particles, std::vector<Body> *Bodies, std::vector<Point> *Forces){
+void ppmodel(int particles, std::vector<Body> *Bodies, std::vector<Point> *Forces, std::vector<Point> *Potentials){
 
 double Total_Force[2]={0,0}; //0}; [3] here
 double Total_Energy = 0;
 double r[2] = {0,0}; //,0}; r[3] here for 3D
 double distance = 0;
-double k = 0;
+double k, k2 = 0;
 
 for(int i = 0; i < particles; i++){
     for(int j = i+1; j < particles; j++){
         
         findDistance((*Bodies)[i], (*Bodies)[j], distance, r);
         // printf("Distance %f r[%f, %f, %f] \n", distance, r[0], r[1], r[2]);
-        
-        k = (((*Bodies)[i].charge*(*Bodies)[j].charge)/(distance*distance*distance));
+        k2 = ((*Bodies)[i].charge*(*Bodies)[j].charge);
+        k = (k2/(distance*distance*distance));
         // printf("k: %f\n", k); printf("r[0]: %f\n", r[0]);  printf("r[1]: %f\n", r[1]);
         (*Forces)[i].x += k*r[0]; (*Forces)[i].y += k*r[1]; //(*Forces)[i].z += k*r[2];
         (*Forces)[j].x -= k*r[0]; (*Forces)[j].y -= k*r[1]; //(*Forces)[j].z -= k*r[2];
+
+        (*Potentials)[i].x += k2/r[0]; (*Potentials)[i].y += k2/r[1];
+        (*Potentials)[j].x += k2/r[0]; (*Potentials)[j].y += k2/r[1];
 
         
     }

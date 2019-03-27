@@ -19,7 +19,7 @@ for (int i=0; i < particles; i++){
     A[i][j] = 100 *  (double) rand() / (double) RAND_MAX -50 ; //Random values between -100, 100
     Vel[i][j] = 2 * (double) rand() / (double) RAND_MAX -1;  // Random values between -1, 1
     F[i][j] = 0;
-    printf("A[%i][%f]\n", i, A[i][j]);
+    // printf("A[%i][%f]\n", i, A[i][j]);
   }
 }
 

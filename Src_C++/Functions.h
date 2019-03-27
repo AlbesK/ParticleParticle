@@ -40,6 +40,6 @@ class Body: public Point {
 };
 
 void initialiser(int seed, int particles, std::vector<Body> *Bodies, std::vector<Point> *Forces);
-void ppmodel(int particles, std::vector<Body> *Bodies, std::vector<Point> *Forces);
+void ppmodel(int particles, std::vector<Body> *Bodies, std::vector<Point> *Forces, std::vector<Point> *Potentials);
 
 
