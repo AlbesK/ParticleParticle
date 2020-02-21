@@ -10,4 +10,4 @@ Both Src and Src_C++ have makefiles to be executed by make after that run main.c
 
 if you have [valgrind](https://valgrind.org/) installed to check efficiency of this build in heap by typing:
 
-"valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./td"
+"valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes main.o" or however the output file is saved.
