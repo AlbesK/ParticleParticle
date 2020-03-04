@@ -1,5 +1,5 @@
 # ParticleParticle
-Benchmark numerical model based on particle-particle electrostatic interactions written in C and in object oriented C++.
+Benchmark numerical model based on particle-particle(PP) electrostatic interactions written in C and in object oriented C++.
 This was one of the 2 numerical methods used for my dissertation on calculating the inverse square law for electric charges rapidly with complexity O(n<sup>2</sup>).
 
 ## Theory
